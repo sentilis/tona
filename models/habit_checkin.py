@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #    Copyright (C) 2021  The Project TONA Authors
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -12,3 +13,12 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import peewee
+from models.base import BaseModel
+from models.habit import Habit
+
+class HabitCheckin(BaseModel):
+
+    habit_id = peewee.ForeignKeyField(Habit)
+    description = peewee.TextField()
+    checkin_at = peewee.DateTimeField()

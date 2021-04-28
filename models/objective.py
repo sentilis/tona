@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2021  The Project OKRESULTS Authors
+#    Copyright (C) 2021  The Project TONA Authors
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from peewee import *
+import peewee
 from models.base import BaseModel
 import re
 import datetime
@@ -29,13 +29,12 @@ Y  = '*y'
 D  = '*d'
 
 class Objective(BaseModel):
-    
-    name = CharField()
-    start_date = DateField()
-    end_date = DateField()
-    status = CharField(max_length=10, default='draft') # draft,doing,done
 
-        
+    name = peewee.CharField()
+    start_at = peewee.DateField()
+    due_at = peewee.DateField()
+
+"""
 def get_quarter_by_date(dt: datetime.date):
     month = dt.month
 
@@ -103,7 +102,7 @@ def get_quarter_by_name(name: str = Q):
     return get_quarter_by_date(today)
 
 def objective_smart_name(name):
-    """
+    
         1.- This a simple objective name
             {
                 'name': 'This a simple objective',
@@ -119,7 +118,7 @@ def objective_smart_name(name):
         *y  - year [Current year]
         *m  - month [Current month]
         *d  - day [Current day]
-    """
+    
     data = {}
     find_date = re.search(r"(\*d)|(\*m)|(\*q1)|(\*q2)|(\*q3)|(\*q4)|(\*y)", name)
     objective_date = get_quarter_by_name()
@@ -133,4 +132,4 @@ def objective_smart_name(name):
         'start_date': objective_date.get('quarter_start_date'),
         'end_date': objective_date.get('quarter_end_date'),
     })
-    return data
+    return data"""

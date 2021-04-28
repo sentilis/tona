@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2021  The Project OKRESULTS Authors
+#    Copyright (C) 2021  The Project TONA Authors
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from peewee import *
+import peewee
 from models.base import BaseModel
 from models.objective import Objective
 import re
@@ -21,19 +21,19 @@ import re
 INCREASING = 'increasing'
 DECREASING = 'decreasing'
 
-class KeyResult(BaseModel):
-    
-    objective_id = ForeignKeyField(Objective)
+class ObjectiveKey(BaseModel):
 
-    name = CharField()
-    metric_measure = CharField(max_length=10, default='percent') # percent%, number# , currency$, custom x
-    changes_metric = CharField(max_length=20, default='increasing') # increasing+, decreasing-
-    start_value = IntegerField( default=0)
-    target_value = IntegerField( default=100)
-    start_date = DateField()
-    end_date = DateField()
-    status = CharField(max_length=10, default='off-track') # off-track (<60) at-risk (>60 80<) on-track (>80)
+    objective_id = peewee.ForeignKeyField(Objective)
 
+    name = peewee.CharField()
+    metric_measure = peewee.CharField(max_length=10, default='percent')  # percent%, number# , currency$, custom x
+    changes_metric = peewee.CharField(max_length=20, default='increasing')  # increasing+, decreasing-
+    start_value = peewee.IntegerField( default=0)
+    target_value = peewee.IntegerField( default=100)
+    start_at = peewee.DateField()
+    due_at = peewee.DateField()
+    status = peewee.CharField(max_length=10, default='off-track')  # off-track (<60) at-risk (>60 80<) on-track (>80)
+"""
 def get_metric_measure(name):
     find_metric_measure = re.search(r"(\/\S+)", name)
     metric_measure = 'percent'
@@ -106,4 +106,4 @@ def keyresult_smart_name(name, objective_id=True):
         "end_date": end_date,
     }
 
-    return data
+    return data"""

@@ -1,5 +1,8 @@
 import re
 
+def path_storage():
+    pass
+
 def name_constraint(name):
     if not name:
         print("The argument name is required")

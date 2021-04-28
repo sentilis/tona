@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Objective Key Result{% endblock %}
+
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+<section>
+  <header>
+    <h2>{{objective.name}}</h2>
+    <p>{{objective.start_date}} - {{objective.end_date}}</p>
+</header>
+  
+{% for row in keyresults %}
+    <a href="/okr/{{row.id}}">
+      <aside>
+        <h3>{{row}}</h3>
+        <p>{{row.start_date}} - {{row.end_date}} </p>
+        <p><small>*{{row.status}}</small></p>
+      </aside>
+    </a>
+  {% endfor %}
+</section>
+{% endblock %}

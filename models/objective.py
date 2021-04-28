@@ -33,18 +33,8 @@ class Objective(BaseModel):
     name = CharField()
     start_date = DateField()
     end_date = DateField()
-    active = BooleanField(default=True)
     status = CharField(max_length=10, default='draft') # draft,doing,done
-    
-    @classmethod
-    def exists(cls, id):
-        rows = Objective.select().where(
-                Objective.id==id,
-                Objective.active==True,
-            ).limit(1)
-        if len(rows):
-            return rows
-        raise DoesNotExist("Not found")
+
         
 def get_quarter_by_date(dt: datetime.date):
     month = dt.month

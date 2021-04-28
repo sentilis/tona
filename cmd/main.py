@@ -14,19 +14,38 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import click
-from commands.objective import objective as command_objective
+
+import os
+import sys
+
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
+from web.main import  app as webapp
 from models.base import setup, db
 from models.objective import Objective
-import os
+from models.keyresult import KeyResult
+
+from objective import objective as command_objective
+from keyresult import keyresult as command_keyresult
 
 @click.group()
 def cli():
     #path= "~/.local/share/okresults"
     #if not os.path.exists(path):
     #    os.mkdir(path)
-    setup("okresults.db")
-    db.create_tables([Objective])
+    setup("tona.db")
+    db.create_tables([Objective, KeyResult])
+
+@click.command(name="web")
+@click.option("--conf","-c", is_flag=True)
+def cli_web(conf):
+    webapp.run(debug=True, host='0.0.0.0', port=5001)
+
+cli.add_command(cli_web)
 cli.add_command(command_objective)
+cli.add_command(command_keyresult)
 
 if __name__ == "__main__":
     cli()

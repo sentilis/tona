@@ -13,23 +13,14 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import re
+from datetime import datetime
 
-def path_storage():
-    pass
+FORMAT_DATETIME_ISO8601 = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-def name_constraint(name):
-    if not name:
-        print("The argument name is required")
-        raise SystemExit(1)
-    if not isinstance(name, tuple):
-        print("The argument name not is tuple")
-        raise SystemExit(1)
-    return ' '.join(name)
-
-
-def dt_utc():
-    pass
-
-def dt_local():
-    pass
+def format_datetime(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DATETIME_ISO8601):
+    dt = datetime.utcnow().strftime(fmt)
+    if str2obj:
+        dt = datetime.strptime(str2obj, fmt)
+    elif obj2str:
+        dt = obj2str.strftime(fmt)
+    return dt

@@ -1,50 +1,111 @@
-<!-- MVP.css quickstart template: https://github.com/andybrewer/mvp/ -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <link rel="icon" href="https://via.placeholder.com/70x70">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mvp.css') }}">
+    <link rel="icon" href="{{url_for('static', filename='img/logo70x70.png')}}">
+    <link rel="stylesheet" href="https://bulma.io/vendor/fontawesome-free-5.15.2-web/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
     <meta charset="utf-8">
     <meta name="description" content="Tona - Lightweight tools for personal productivity">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Tona - {% block title %}{% endblock %}</title>
     {% block head %}
-
+        <script src="{{url_for('static', filename='js/tona.js')}}"></script>
     {% endblock %}
 </head>
 
 <body>
     <header>
-        <nav>
-            <a href="/"><img alt="Logo" src="https://via.placeholder.com/200x70?text=Logo" height="70"></a>
-            <ul>
-                <li><a href="/okr">ORK</a></li>
-                <!--<li><a href="#">Dropdown Menu Item</a>
-                    <ul>
-                        <li><a href="#">Sublink with a long name</a></li>
-                        <li><a href="#">Short sublink</a></li>
-                    </ul>
-                </li-->
-                {% block menu %}
-                {% endblock %}
-            </ul>
+        <nav class="navbar is-transparent">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <img src="{{url_for('static', filename='img/logo.png')}}" width="112" height="28">
+                </a>
+                <div class="navbar-burger" data-target="tona-navbar-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+                </div>
+            </div>
+            
+            <div id="tona-navbar-menu" class="navbar-menu">
+                <!--div class="navbar-start">
+                    <a class="navbar-item" href="https://bulma.io/">
+                        Home
+                    </a>
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link" href="https://bulma.io/documentation/overview/start/">
+                        Docs
+                        </a>
+                        <div class="navbar-dropdown is-boxed">
+                        <a class="navbar-item" href="https://bulma.io/documentation/overview/start/">
+                            Overview
+                        </a>
+                        <a class="navbar-item" href="https://bulma.io/documentation/overview/modifiers/">
+                            Modifiers
+                        </a>
+                        <a class="navbar-item" href="https://bulma.io/documentation/columns/basics/">
+                            Columns
+                        </a>
+                        <a class="navbar-item" href="https://bulma.io/documentation/layout/container/">
+                            Layout
+                        </a>
+                        <a class="navbar-item" href="https://bulma.io/documentation/form/general/">
+                            Form
+                        </a>
+                        <hr class="navbar-divider">
+                        <a class="navbar-item" href="https://bulma.io/documentation/elements/box/">
+                            Elements
+                        </a>
+                        <a class="navbar-item is-active" href="https://bulma.io/documentation/components/breadcrumb/">
+                            Components
+                        </a>
+                        </div>
+                    </div>
+                </div-->
+            
+                <div class="navbar-end">
+                    <a class="navbar-item" href="/timer">
+                        Timer
+                    </a>
+                    <!--div class="navbar-item">
+                        <div class="field is-grouped">
+                        <p class="control">
+                            <a class="bd-tw-button button" data-social-network="Twitter" data-social-action="tweet" data-social-target="https://bulma.io" target="_blank" href="https://twitter.com/intent/tweet?text=Bulma: a modern CSS framework based on Flexbox&amp;hashtags=bulmaio&amp;url=https://bulma.io&amp;via=jgthms">
+                            <span class="icon">
+                                <i class="fab fa-twitter"></i>
+                            </span>
+                            <span>
+                                Tweet
+                            </span>
+                            </a>
+                        </p>
+                        <p class="control">
+                            <a class="button is-primary" href="https://github.com/jgthms/bulma/releases/download/0.9.2/bulma-0.9.2.zip">
+                            <span class="icon">
+                                <i class="fas fa-download"></i>
+                            </span>
+                            <span>Download</span>
+                            </a>
+                        </p>
+                        </div>
+                    </div-->
+                </div>
+            </div>
         </nav>
-        <h1>Page Heading with <i>Italics</i> and <u>Underline</u></h1>
-        <p>Page Subheading with <mark>highlighting</mark></p>
-        <br>
-        <p><a href="#"><i>Italic Link Button</i></a><a href="#"><b>Bold Link Button &rarr;</b></a></p>
     </header>
     <main>
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <hr>
-        <p>
-            <small>Tona - Lightweight tools for personal productivity</small>
-        </p>
+    <footer class="footer">
+        <div class="content has-text-centered">
+          <p>
+            <strong>Tona</strong> by <a href="https://josehbez.com">@josehbez</a>. The source code is licensed
+            <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>. The website content
+            is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+          </p>
+        </div>
     </footer>
 </body>
 

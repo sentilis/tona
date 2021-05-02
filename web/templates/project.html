@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Project{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <script src="{{url_for('static', filename='js/project.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="columns is-mobile">
+    <div class="column is-one-quarter">
+        <aside class="menu">
+            <p class="menu-label">
+              General
+            </p>
+            <ul class="menu-list">
+              <li><a href="/project/today"><span class="icon"><i class="fas fa-calendar-day"></i></span>Today</a></li>
+              <li><a href="/project/tomorrow"><span class="icon"><i class="fas fa-calendar-week"></i></span>Tomorrow</a></li>
+              <li><a href="/project/week"><span class="icon"><i class="fas fa-calendar"></i></span>Next 7 Days</a></li>
+
+              <!--TODO:li><a href="/project/calendar"><span class="icon"><i class="fas fa-calendar-alt"></i></span>Calendar</a></li-->
+            </ul>
+            <p class="menu-label">
+              Projects
+            </p>
+            <ul id="project-menu-list" class="menu-list">
+              {% for row in projects %}
+                <li><a href="/project/{{row.id}}">{{row.name}}</a></li>
+              {% endfor %}
+            </ul>
+            <p class="menu-label">
+              Manage
+            </p>
+            <ul class="menu-list">
+              <li><a onclick="Tona.Modal.Show('modal-add-project')"><span class="icon"><i class="fas fa-plus-circle"></i></span>Add</a></li>
+            </ul>
+        </aside>
+
+        <div id="modal-add-project" class="modal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Add Project</p>
+              <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+              <input id="project-name" type="text" class="input is-primary" placeholder="Project name"/>
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" onclick="TonaProject.Add()">Save changes</button>
+              <button class="button">Cancel</button>
+            </footer>
+          </div>
+        </div>
+    </div>
+    <div class="column">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+          <div class="notification">
+            <button class="delete"></button>
+            {{ message }}
+          </div>
+          {% endfor %}
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded",Tona.NotificationDelete);
+          </script>
+        {% endif %}
+      {% endwith %}
+      
+      {% if is_today or is_tomorrow or is_week %}
+      <aside id="project-today" class="menu">
+        {% for key in tasks %}
+          <p id="{{key}}-menu-label" class="menu-label">
+            {{key}}
+          </p>
+          <ul id="{{key}}-menu-list"class="menu-list">
+            {% for row in tasks[key] %}
+              <li draggable="true" id="task-menu-item-{{row.id}}">
+                <a href="/project/{{row.project_id.id}}/task/{{row.id}}" class="{{ 'is-active'if is_task and row.id==task.id else ''}}">
+                  <input type="checkbox" class="mr-2" onclick="TonaProject.EditTask(event,{{row.id}},'status','done')">
+                  {{row.name}}
+                  
+                  {% if row.due %}
+                    <span class="is-pulled-right">{{convert_datetime_tz(obj2str=row.due, fmt='%b %d, %Y')}}</span>
+                  {% endif %}
+                  <span class="is-pulled-right pr-2 is-small">{{row.project_id.name}}</span>
+                </a>
+            </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </aside>
+      {% endif %}
+
+      <!-- Show task by Project -->
+      {% if is_project %}
+      <div class="control mb-5">
+        <input id="project-id" type="hidden" value="{{project.id}}"/>
+        <input id="task-name" class="input is-small" type="text" 
+              onkeypress="TonaProject.AddTask(event)"
+              placeholder="Add task to '{{project.name}}', press Enter to save.">
+      </div>
+      <aside id="project" class="menu">
+        {% for key in tasks %}
+          <p id="{{key}}-menu-label" class="menu-label" 
+            ondrop="TonaProject.onDropTask(event);"
+            ondragover="TonaProject.onDragOverTask(event);">
+            {{key}}
+          </p>
+          <ul id="{{key}}-menu-list"class="menu-list">
+            {% for row in tasks[key] %}
+              <li draggable="true" id="task-menu-item-{{row.id}}" ondragstart="TonaProject.onDragStartTask(event);">
+                <a href="/project/{{project.id}}/task/{{row.id}}" class="{{ 'is-active'if is_task and row.id==task.id else ''}}">
+                  <input type="checkbox" class="mr-2" onclick="TonaProject.EditTask(event,{{row.id}},'status','done')">
+                  {{row.name}}
+
+                  {% if row.due %}
+                    <span class="is-pulled-right">{{convert_datetime_tz(obj2str=row.due, fmt='%b %d, %Y')}}</span>
+                  {% endif %}
+                </a>
+            </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </aside>
+      {% endif%}
+
+    </div>
+    
+      <div class="column">
+        {% if is_task %}
+
+        <div class="columns">
+          <div class="column">          
+                <input type="checkbox" class="mr-4 is-small is-inline" onchange="TonaProject.EditTask(event,{{task.id}},'status','done')">
+                {% set task_due = "" %}
+                {% if task.due %}
+                  {% set task_due = convert_datetime_tz(obj2str=task.due) %}
+                {% endif %}
+                <input class="input is-small is-inline" type="datetime-local" value="{{task_due}}" title="Due"
+                  onchange="TonaProject.EditTask(event,{{task.id}},'due')"/>
+                  <div class="is-pulled-right mr-4">
+                    <a class="is-light" title="Start time entry">
+                      <span class="icon is-small">
+                        <i class="fas fa-clock"></i>
+                      </span>
+                    </a>
+                    <a class="is-light" title="Stop time entry">
+                      <span class="icon is-small">
+                        <i class="fas fa-stop"></i>
+                      </span>
+                    </a>
+                    00:00:00
+                  </div>
+          </div>
+          
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <input onblur="TonaProject.EditTask(event,{{task.id}},'name')" class="input" type="text" placeholder="What needs doing?" value="{{task.name}}">
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <textarea onblur="TonaProject.EditTask(event,{{task.id}},'description')" class="textarea" placeholder="Description" rows="10">{{ task.description if task.description else ''}}</textarea>
+          </div>
+        </div>
+        <!--div class="columns">
+          <div class="tabs is-small">
+            <ul>
+              <li class="is-active"><a>Comments</a></li>
+              <li><a>Attachments</a></li>
+            </ul>
+          </div>
+        </div-->
+        {% else %}
+          <div class="has-text-centered">
+            Click a task title  to view its detail
+          </div>
+        {% endif %}
+      </div>
+    
+</div>
+
+{% endblock %}

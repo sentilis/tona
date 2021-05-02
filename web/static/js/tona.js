@@ -37,3 +37,51 @@ if ( !Date.prototype.toISOString ) {
     
       }() );
 }
+
+(function(window){
+  function Tona (){
+      var self = {};
+
+      self.NotificationDelete = function(){
+        (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+          const $notification = $delete.parentNode;
+      
+          $delete.addEventListener('click', () => {
+            $notification.parentNode.removeChild($notification);
+          });
+        });
+      }
+      self.Modal = {
+        modal : null,
+        Done: ()=>{},
+        Close: function (){
+          self.Modal.modal.classList.remove('is-active');
+          self.Modal.modal = null;
+        },
+        Show : function(id){
+          self.Modal.modal = document.getElementById(id);
+          self.Modal.modal.classList.add('is-active');
+          
+          (self.Modal.modal.querySelectorAll('.modal-card-head .delete') || []).forEach(($delete)=>{
+            $delete.addEventListener('click', self.Modal.Close);
+          });
+          
+          (self.Modal.modal.querySelectorAll('.modal-card-foot button:not(.is-success)') || []).forEach(($delete)=>{
+            $delete.addEventListener('click', self.Modal.Close);
+          });
+          
+          /*(self.Modal.modal.querySelectorAll('.modal-card-foot button.is-success') || []).forEach(($delete)=>{
+            console.log($delete);
+            $delete.addEventListener('click', self.Modal.Done);
+          });*/
+
+        }, 
+
+      };
+      return self;
+  }
+
+  if (typeof(window.Tona) === 'undefined'){
+    window.Tona = Tona();
+  }
+})(window);

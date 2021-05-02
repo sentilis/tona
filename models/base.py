@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
 import datetime
+from playhouse.shortcuts import model_to_dict
 
 db = peewee.SqliteDatabase(None)
 
@@ -26,8 +27,8 @@ def setup(name):
 class BaseModel(peewee.Model):
 
     active = peewee.BooleanField(default=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
-    edited_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = peewee.DateTimeField(default=datetime.datetime.utcnow)
+    edited_at = peewee.DateTimeField(default=datetime.datetime.utcnow)
 
 
     class Meta:
@@ -47,3 +48,6 @@ class BaseModel(peewee.Model):
     @classmethod
     def get_archived(cls):
         return cls.select().where(cls.active == False)
+
+    def to_dict(self):
+        return model_to_dict(self, recurse=True, exclude=['active'])

@@ -22,30 +22,27 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-from web.main import  app as webapp
+from web.main import app as webapp
 from models.base import setup, db
-from models.objective import Objective
-from models.keyresult import KeyResult
+from models.time_entry import TimeEntry
+from models.project import Project
+from models.project_task import ProjectTask
 
-from objective import objective as command_objective
-from keyresult import keyresult as command_keyresult
 
 @click.group()
 def cli():
-    #path= "~/.local/share/okresults"
-    #if not os.path.exists(path):
-    #    os.mkdir(path)
     setup("tona.db")
-    db.create_tables([Objective, KeyResult])
+    db.create_tables([TimeEntry, Project, ProjectTask])
 
-@click.command(name="web")
-@click.option("--conf","-c", is_flag=True)
-def cli_web(conf):
-    webapp.run(debug=True, host='0.0.0.0', port=5001)
+@click.command(name="webapp")
+@click.option("--debug", "-d", is_flag=True)
+@click.option("--port", "-p", type=click.INT)
+def cli_webapp(debug=False, port=5001):
+    webapp.secret_key = os.urandom(16)
+    webapp.run(debug=debug, host='0.0.0.0', port=port)
 
-cli.add_command(cli_web)
-cli.add_command(command_objective)
-cli.add_command(command_keyresult)
+
+cli.add_command(cli_webapp)
 
 if __name__ == "__main__":
     cli()

@@ -16,15 +16,42 @@
 import peewee
 from models.base import BaseModel
 from models.project import Project
+from utils import format_datetime
 
 class ProjectTask(BaseModel):
 
     project_id = peewee.ForeignKeyField(Project)
 
     name = peewee.CharField()
-    description = peewee.TextField()
-    start = peewee.DateTimeField()
-    due = peewee.DateTimeField()
+    description = peewee.TextField(null=True)
+    start = peewee.DateTimeField(null=True)
+    due = peewee.DateTimeField(null=True)
 
-    status = peewee.CharField()  # todo, doing , done
-    priority = peewee.IntegerField()
+    status = peewee.CharField(default='todo')  # todo, doing ,review, done
+    priority = peewee.IntegerField(default=1)  # 1-high 2-medium 3-low
+
+
+def create_project_task(project_id: int, name: str):
+    Project.check(project_id)
+    data = {"name": name, "project_id": project_id}
+    id = ProjectTask.create(**data)
+    return id.to_dict()
+
+def edit_project_task(id: int, name: str = None, description: str = None, status: str = None, due: str = None):
+    ProjectTask.check(id)
+    data = {}
+    if name is not None:
+        data.update({ProjectTask.name: name})
+    if description is not None:
+        data.update({ProjectTask.description: description})
+    if status is not None:
+        data.update({ProjectTask.status: status})
+    if due is not None:
+        print(due)
+        data.update({ProjectTask.due: format_datetime(due)})
+    if not len(data.keys()):
+        raise Exception("ProjectTask: is requried min 1 for update")
+
+    ProjectTask.update(data).where(ProjectTask.id == id).execute()
+    data = ProjectTask.check(id)[0]
+    return data.to_dict()

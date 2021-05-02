@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <header>
+    <header class="pl-4 pr-4">
         <nav class="navbar is-transparent">
             <div class="navbar-brand">
                 <a class="navbar-item" href="/">
@@ -69,6 +69,9 @@
                     <a class="navbar-item" href="/timer">
                         Timer
                     </a>
+                    <a class="navbar-item" href="/project">
+                        Project
+                    </a>
                     <!--div class="navbar-item">
                         <div class="field is-grouped">
                         <p class="control">
@@ -95,10 +98,10 @@
             </div>
         </nav>
     </header>
-    <main>
+    <main class="ml-4 mr-4 mt-5">
         {% block content %}{% endblock %}
     </main>
-    <footer class="footer">
+    <footer class="footer mt-5">
         <div class="content has-text-centered">
           <p>
             <strong>Tona</strong> by <a href="https://josehbez.com">@josehbez</a>. The source code is licensed

@@ -14,8 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from datetime import datetime
+import pytz
 
 FORMAT_DATETIME_ISO8601 = '%Y-%m-%dT%H:%M:%S.%fZ'
+FORMAT_DATETIME = '%Y-%m-%dT%H:%M:%S'
 
 def format_datetime(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DATETIME_ISO8601):
     dt = datetime.utcnow().strftime(fmt)
@@ -23,4 +25,11 @@ def format_datetime(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DA
         dt = datetime.strptime(str2obj, fmt)
     elif obj2str:
         dt = obj2str.strftime(fmt)
+    return dt
+
+def convert_datetime_tz(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DATETIME, tz=""):
+    dt = datetime.utcnow().strftime(fmt)
+    if obj2str:
+        obj2str = obj2str.replace(tzinfo=pytz.utc)
+        dt = obj2str.astimezone(pytz.timezone('Mexico/General')).strftime(fmt)
     return dt

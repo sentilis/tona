@@ -18,4 +18,13 @@ from models.base import BaseModel
 
 class Project(BaseModel):
 
+    class Meta:
+        table_name = 'project'
+
     name = peewee.CharField()
+
+def create_project(name: str):
+    data = {"name": name}
+    id = Project.create(**data)
+    data.update({"id": id.id})
+    return data

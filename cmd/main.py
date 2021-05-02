@@ -36,9 +36,11 @@ def cli():
 
 @click.command(name="webapp")
 @click.option("--debug", "-d", is_flag=True)
-@click.option("--port", "-p", type=click.INT)
-def cli_webapp(debug=False, port=5001):
+@click.option("--port", "-p", type=click.INT, default=5001)
+@click.option("--time-zone", "-t", type=click.STRING, default="UTC", help="Linux tz: https://superuser.com/a/1589527")
+def cli_webapp(time_zone, port, debug):
     webapp.secret_key = os.urandom(16)
+    webapp.config['tz'] = time_zone
     webapp.run(debug=debug, host='0.0.0.0', port=port)
 
 

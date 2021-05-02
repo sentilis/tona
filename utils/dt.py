@@ -17,19 +17,38 @@ from datetime import datetime
 import pytz
 
 FORMAT_DATETIME_ISO8601 = '%Y-%m-%dT%H:%M:%S.%fZ'
-FORMAT_DATETIME = '%Y-%m-%dT%H:%M:%S'
+FORMAT_DATE = '%Y-%m-%d'
+FORMAT_TIME = '%H:%M:%S'
+FORMAT_DATETIME = FORMAT_DATE + ' ' + FORMAT_TIME
 
-def format_datetime(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DATETIME_ISO8601):
-    dt = datetime.utcnow().strftime(fmt)
-    if str2obj:
-        dt = datetime.strptime(str2obj, fmt)
-    elif obj2str:
-        dt = obj2str.strftime(fmt)
-    return dt
+def format_datetime(dt, fmt_in=FORMAT_DATETIME_ISO8601,
+                        fmt_out=FORMAT_DATETIME_ISO8601, obj=False):
+    if isinstance(dt, datetime):
+        pass
+    elif isinstance(dt, str):
+        dt = datetime.strptime(dt, fmt_in)
+    if obj:
+        return dt
+    return dt.strftime(fmt_out)
 
-def convert_datetime_tz(str2obj: str = None, obj2str: datetime = None, fmt=FORMAT_DATETIME, tz=""):
-    dt = datetime.utcnow().strftime(fmt)
-    if obj2str:
-        obj2str = obj2str.replace(tzinfo=pytz.utc)
-        dt = obj2str.astimezone(pytz.timezone('Mexico/General')).strftime(fmt)
-    return dt
+def convert_datetime(dt, tz_in=pytz.utc, tz_out=pytz.utc,
+                        fmt_in=FORMAT_DATETIME_ISO8601,
+                        fmt_out=FORMAT_DATETIME_ISO8601, obj=False):
+
+    if isinstance(dt, datetime):
+        pass
+    elif isinstance(dt, str):
+        if dt != "":
+            dt = datetime.strptime(dt, fmt_in)
+        else:
+            raise Exception("Args: dt is empty")
+    if tz_in != pytz.utc:
+        tz_in = pytz.timezone(tz_in)
+    if tz_out != pytz.utc:
+        tz_out = pytz.timezone(tz_out)
+
+    dt = dt.replace(tzinfo=tz_in)
+    dt = dt.astimezone(tz_out)
+    if obj:
+        return dt
+    return dt.strftime(fmt_out)

@@ -16,78 +16,86 @@
 {% endif %}
 <div class="columns is-mobile">
   
-  <div class="column is-one-quarter">
+  <div class="column is-one-fifth">
     <aside class="menu">
       <p class="menu-label">
         Track
       </p>
       <ul class="menu-list">
-        <li><a href="/timer"><span class="icon"><i class="fas fa-clock"></i></span>Timer</a></li>
+        <li><a href="/time-entry"><span class="icon"><i class="fas fa-clock"></i></span>Timer</a></li>
       </ul>
+      <!--p class="menu-label">
+        Analyze
+      </p>
+      <ul class="menu-list">
+        <li><a href="/time-entry/project"><span class="icon"><i class="fa fa-tasks"></i></span>Project</a></li>
+      </ul-->
   </aside>
   </div>
-
-  <div class="column">
-    {% if is_timer %}
-      <div class="columns">
-        <div class="column">
-          
-          <div class="field has-addons">
-            <p class="control">
-              <a id="time-entry-duration" class="button">00:00:00</a>
-            </p>
-            <p class="control is-expanded">
-              <input id="time-entry-name" value="{{time_entry_name}}" class="input is-primary" type="text" placeholder="What are you working on?">
-              {% if time_entry  %}
-              <script type="text/javascript">
-                document.addEventListener("DOMContentLoaded", function(event) {
-                  TonaTimeEntry.StartTimeEntry("{{time_entry_start}}");
-                });
-              </script>    
-              {% endif %}
-            </p>
-            <p class="control">
-              <a onclick="TonaTimeEntry.StartTimeEntry()" id="start-time-entry" class="button is-primary" title="Start time entry">
-                <span class="icon">
-                  <i class="fas fa-clock"></i>
-                </span>
-              </a>
-              <a onclick="TonaTimeEntry.StopTimeEntry()"id="stop-time-entry" class="button is-light is-hidden" title="Stop time entry">
-                <span class="icon">
-                  <i class="fas fa-stop"></i>
-                </span>
-              </a>
-            </p>
+  
+    <div class="column">
+      {% if is_timer %}
+        <div class="columns">
+          <div class="column">
+            
+            <div class="field has-addons">
+              <p class="control">
+                <a id="time-entry-duration" class="button">00:00:00</a>
+              </p>
+              <p class="control is-expanded">
+                <input id="time-entry-name" value="{{time_entry_name}}" class="input is-primary" type="text" placeholder="What are you working on?">
+                {% if time_entry  %}
+                <script type="text/javascript">
+                  document.addEventListener("DOMContentLoaded", function(event) {
+                    TonaTimeEntry.StartTimeEntry("{{time_entry_start}}");
+                  });
+                </script>    
+                {% endif %}
+              </p>
+              <p class="control">
+                <a onclick="TonaTimeEntry.StartTimeEntry()" id="start-time-entry" class="button is-primary" title="Start time entry">
+                  <span class="icon">
+                    <i class="fas fa-clock"></i>
+                  </span>
+                </a>
+                <a onclick="TonaTimeEntry.StopTimeEntry()"id="stop-time-entry" class="button is-danger is-hidden" title="Stop time entry">
+                  <span class="icon">
+                    <i class="fas fa-stop"></i>
+                  </span>
+                </a>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="columns">
-        <div class="column">
-          <table class="table is-narrow is-hoverable is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Start</th>
-                <th>Stop</th>
-                <th>Duration</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in time_entries %}
+        <div class="columns">
+          <div class="column">
+            <table class="table is-narrow is-hoverable is-fullwidth">
+              <thead>
                 <tr>
-                  <th>{{row.name}}</th>
-                  <th>{{convert_datetime_tz(obj2str=row.start, fmt='%H:%M:%S')}}</th>
-                  <th>{{convert_datetime_tz(obj2str=row.stop, fmt='%H:%M:%S') if row.stop else ''}}</th>
-                  <td>{{format_duration(row.duration)}}</td>
+                  <th>Name</th>
+                  <th>Start</th>
+                  <th>Stop</th>
+                  <th>Duration</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {% for row in time_entries %}
+                  <tr>
+                    <th>{{row[1]}}</th>
+                    <th>{{convert_datetime(row[2], tz_out=tz, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME)}}</th>
+                    <th>{{convert_datetime(row[3], tz_out=tz, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME) if row[3] else ''}}</th>
+                    <td>{{format_duration(row[4])}}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    {% endif %}
-  </div>
+        {% endif %}    
+    </div>
+    <div class="column is-one-fifth">
+    </div>
+  
 </div>
 
 

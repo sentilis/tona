@@ -30,6 +30,9 @@ D  = '*d'
 
 class Objective(BaseModel):
 
+    class Meta:
+        table_name = 'objective'
+
     name = peewee.CharField()
     start_at = peewee.DateField()
     due_at = peewee.DateField()

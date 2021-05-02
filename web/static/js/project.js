@@ -59,10 +59,10 @@
                         'Content-Type': 'application/json'
                     },
                 }).then(response => response.json()).then(function(data){
-                    console.log(data)
                     var todo_menu_list = document.querySelector("#todo-menu-list");
                     var li = document.createElement("li");
-                    li.innerHTML = '<a><label class="checkbox"><input type="checkbox" class="mr-2">'+txtName.value+'</label></a>';
+                    var taks = data['payload'];
+                    li.innerHTML = '<a href="/project/'+taks['project_id']['id']+'/task/'+taks['id']+'"><label class="checkbox"><input type="checkbox" class="mr-2">'+txtName.value+'</label></a>';
                     todo_menu_list.append(li);
                     txtName.value = ""
                 }).catch(function(error){
@@ -82,7 +82,7 @@
             if (field == 'due') {
                 var utc = new Date(new Date( data[field]).getTime());
                 data[field]= utc.toISOString();
-            }
+            }            
             fetch("/api/project/task/"+id, {
                 method: 'put',
                 body: JSON.stringify(data),

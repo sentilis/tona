@@ -23,6 +23,9 @@ DECREASING = 'decreasing'
 
 class ObjectiveKey(BaseModel):
 
+    class Meta:
+        table_name = 'objective_key'
+
     objective_id = peewee.ForeignKeyField(Objective)
 
     name = peewee.CharField()

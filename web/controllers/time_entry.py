@@ -1,17 +1,26 @@
 from flask import render_template, request, jsonify
 from web.main import app
-from models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry
+from models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry, fetch
 import datetime
 from utils import api_response
 
-@app.route("/timer")
-def timer():
-    now = datetime.datetime.utcnow()
-    time_entries = TimeEntry.select().where(
-        (TimeEntry.start.year == now.year) & (TimeEntry.start.month == now.month) & (TimeEntry.start.day == now.day),
-        TimeEntry.active == True, TimeEntry.stop != None).order_by(TimeEntry.stop.desc())
-    time_entry = active_time_entry()
-    is_timer = True #  ._meta.table_name
+@app.route("/time-entry")
+@app.route("/time-entry/<id>")
+def time_entry(id=""):
+
+    is_timer = False
+    time_entries = []
+    time_entry = None
+    if id == "":
+        is_timer = True
+        now = datetime.datetime.utcnow()
+        tt = TimeEntry.select().where(
+            (TimeEntry.start.year == now.year) & (TimeEntry.start.month == now.month) & (TimeEntry.start.day == now.day),
+            TimeEntry.active == True, TimeEntry.stop != None).order_by(TimeEntry.stop.desc())
+        time_entry = active_time_entry()
+        ids = [t.id for t in tt ]
+        time_entries = fetch(condition=f" where id in ({str(ids)[1:-1]}) order by stop desc")
+
     rt = render_template("timer.html",
                             is_timer=is_timer,
                             time_entries=time_entries,
@@ -24,7 +33,6 @@ def api_time_entry_start():
     code = 400
     try:
         data = request.json
-        print(data)
         payload['payload'] = start_time_entry(
             data.get('name', ''),
             data.get('start'),

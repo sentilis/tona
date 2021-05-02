@@ -50,8 +50,7 @@ def edit_project_task(id: int, name: str = None, description: str = None, status
     if status is not None:
         data.update({ProjectTask.status: status})
     if due is not None:
-        print(due)
-        data.update({ProjectTask.due: format_datetime(due)})
+        data.update({ProjectTask.due: format_datetime(due, obj=True)})
     if not len(data.keys()):
         raise Exception("ProjectTask: is requried min 1 for update")
 

@@ -19,7 +19,7 @@ from models.time_entry import start_time_entry, stop_time_entry, TimeEntry,\
                               active_time_entry, format_duration
 from models.project import create_project, Project
 from models.project_task import create_project_task, edit_project_task, ProjectTask
-from utils import api_response, convert_datetime_tz
+from utils import api_response, convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
 import datetime
 
 app = Flask(__name__)
@@ -27,7 +27,14 @@ api = "/api"
 
 @app.context_processor
 def utility_processor():
-    return dict(format_duration=format_duration, convert_datetime_tz=convert_datetime_tz)
+    utility = dict(
+        FORMAT_DATE=FORMAT_DATE,
+        FORMAT_TIME=FORMAT_TIME,
+        FORMAT_DATETIME=FORMAT_DATETIME,
+        tz=app.config['tz'],
+        format_duration=format_duration,
+        convert_datetime=convert_datetime)
+    return utility
 
 @app.route("/")
 def index():
@@ -88,7 +95,7 @@ def project(project_id="", task_id=0):
                                                     ProjectTask.due != None,
                                                     ProjectTask.status != 'done')
             else:
-                label = convert_datetime_tz(obj2str=now,fmt="%A, %b %d") if group != 'today' else 'today'
+                label = convert_datetime(now, tz_out=app.config['tz'], fmt_out="%A, %b %d") if group != 'today' else 'today'
                 tasks[label] = ProjectTask.select().where(
                                                     (ProjectTask.due.year == now.year) &
                                                     (ProjectTask.due.month == now.month) &

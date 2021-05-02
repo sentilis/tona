@@ -20,7 +20,6 @@
         
         var startTime = null;  // Date.now()
         var intervalId = null;  // setInterval()
-        var txtId = null;
         var txtName = null;
         var txtDuration = null; 
         var btnStartTimeEntry = null;
@@ -62,77 +61,111 @@
             txtDuration.textContent = "00:00:00"
         };
 
+        self.ToggleButton = function(){
+            if (btnStartTimeEntry != null && btnStopTimeEntry != null ){
+                if (intervalId != null){
+                    btnStartTimeEntry.classList.add('is-hidden');
+                    btnStopTimeEntry.classList.remove('is-hidden');
+                }else{
+                    btnStartTimeEntry.classList.remove('is-hidden');
+                    btnStopTimeEntry.classList.add('is-hidden');
+                }
+            }
+        };
+
         self.StartTimeEntry = function(start=Date.now()){
             btnStartTimeEntry = document.getElementById("start-time-entry");
             btnStopTimeEntry = document.getElementById("stop-time-entry");
             
-            txtId = document.getElementById("time-entry-id");
             txtName = document.getElementById("time-entry-name");
             txtDuration = document.getElementById("time-entry-duration");
-            
-            if (btnStartTimeEntry != null){
-                btnStartTimeEntry.classList.add('is-hidden');
-            }
-            if (btnStopTimeEntry != null){
-                btnStopTimeEntry.classList.remove('is-hidden');
-            }
 
             if ( typeof(start) === "string"){
-                startTime = Date.parse(start+" UTC");
+                startTime = Date.parse(start+" UTC"); // TODO: after appened  UTC
                 self.Play();
+                self.ToggleButton()
                 return;
             }
             startTime = start;
             startDateTime = new Date(startTime);
-            
-            fetch("/api/time-entry/start", {
-                method: 'post',
-                body: JSON.stringify({
-                    "name": txtName.value,
-                    "start": startDateTime.toISOString(),
-                }),
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            }).then(response => response.json()).then(function(data){
-                self.Play()
-                txtId.value = data['payload']['id'];
-            }).catch(function(error){
-                self.Stop()
-                console.error(error);
-            });
+            self.request("start", {"name": txtName.value,"start": startDateTime.toISOString()})
         };
+
         self.StopTimeEntry = function(){
-            var stop = new Date();
+            self.request("stop", null)
+        };
 
-            fetch("/api/time-entry/stop", {
+        self.request = function(action, data){
+            var url = "";
+            if (action == "stop"){
+                url = "/api/time-entry/stop";
+                var stop = new Date();
+                data = {"id": 0,"stop": stop.toISOString()}
+            }else if (action == "start"){
+                url = "/api/time-entry/start";
+            }else {
+                return;
+            }
+            fetch(url, {
                 method: 'post',
-                body: JSON.stringify({
-                    "id": txtId.value,
-                    "stop": stop.toISOString(),
-                }),
+                body: JSON.stringify(data),
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
             }).then(response => response.json()).then(function(data){
-                self.Stop();
-                txtId.value = "";
-                if (btnStartTimeEntry != null){
-                    btnStartTimeEntry.classList.remove('is-hidden');
-                }
-                if (btnStopTimeEntry != null){
-                    btnStopTimeEntry.classList.add('is-hidden');
+                if (action == "start"){
+                    self.Play();
+                    self.ToggleButton()
+                }else if (action == "stop"){
+                    self.Stop();
+                    self.ToggleButton()
                 }
             }).catch(function(error){
                 console.error(error);
             });
         };
 
+        /**Widget TimeEntry */
+        self.WidgetStartTimeEntry = function (event){
+            var $timeEntry = event.target.parentNode.parentNode.parentNode;
+            
+            btnStartTimeEntry = $timeEntry.querySelector("a.start-time-entry");
+            btnStopTimeEntry = $timeEntry.querySelector("a.stop-time-entry");
+            txtDuration = $timeEntry.querySelector("span.time-entry-duration");
+            startTime = Date.now();
+            startDateTime = new Date(startTime);
+            if (typeof($timeEntry.dataset.resModel)=== "string" && typeof($timeEntry.dataset.resId)=== "string"){
+                var id = parseInt($timeEntry.dataset.resId);
+                var model = $timeEntry.dataset.resModel;
+                if (id>0 && model != "" ){
+                    self.request("start", {res_id: id, res_model: model, "start": startDateTime.toISOString()})
+                }
+            }else if (typeof($timeEntry.dataset.name)=== "string"){
+                var name = $timeEntry.dataset.name;
+                if (name != "" ){
+                    self.request("start", {name: name, "start": startDateTime.toISOString()})
+                }
+            }
+        };
+        
         return self;
     }   
     if (typeof(window.TonaTimeEntry) === 'undefined'){
         window.TonaTimeEntry = TonaTimeEntry();
     }
 })(window);
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    (document.querySelectorAll('.widget-time-entry') || []).forEach(($timeEntry)=>{
+        var start = $timeEntry.querySelector("a.start-time-entry");
+        var stop = $timeEntry.querySelector("a.stop-time-entry");
+        var duration = $timeEntry.querySelector("span.time-entry-duration");
+        if (start === null || stop === null || duration === null){
+            return;
+        }
+        start.addEventListener('click', self.TonaTimeEntry.WidgetStartTimeEntry);
+        stop.addEventListener('click', self.TonaTimeEntry.StopTimeEntry);  
+        
+    });
+  });

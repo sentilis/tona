@@ -20,6 +20,9 @@ from utils import format_datetime
 
 class ProjectTask(BaseModel):
 
+    class Meta:
+        table_name = 'project_task'
+
     project_id = peewee.ForeignKeyField(Project)
 
     name = peewee.CharField()

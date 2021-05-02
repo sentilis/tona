@@ -12,6 +12,7 @@
     <title>Tona - {% block title %}{% endblock %}</title>
     {% block head %}
         <script src="{{url_for('static', filename='js/tona.js')}}"></script>
+        <script src="{{url_for('static', filename='js/time_entry.js')}}"></script>
     {% endblock %}
 </head>
 
@@ -69,7 +70,7 @@
                     <a class="navbar-item" href="/timer">
                         Timer
                     </a>
-                    <a class="navbar-item" href="/project">
+                    <a class="navbar-item" href="/project/today">
                         Project
                     </a>
                     <!--div class="navbar-item">

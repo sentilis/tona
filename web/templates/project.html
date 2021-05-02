@@ -128,60 +128,59 @@
       {% endif%}
 
     </div>
-    
-      <div class="column">
-        {% if is_task %}
+    <div class="column">
+      {% if is_task %}
 
-        <div class="columns">
-          <div class="column">          
-                <input type="checkbox" class="mr-4 is-small is-inline" onchange="TonaProject.EditTask(event,{{task.id}},'status','done')">
-                {% set task_due = "" %}
-                {% if task.due %}
-                  {% set task_due = convert_datetime_tz(obj2str=task.due) %}
-                {% endif %}
-                <input class="input is-small is-inline" type="datetime-local" value="{{task_due}}" title="Due"
-                  onchange="TonaProject.EditTask(event,{{task.id}},'due')"/>
-                  <div class="is-pulled-right mr-4">
-                    <a class="is-light" title="Start time entry">
-                      <span class="icon is-small">
-                        <i class="fas fa-clock"></i>
-                      </span>
-                    </a>
-                    <a class="is-light" title="Stop time entry">
-                      <span class="icon is-small">
-                        <i class="fas fa-stop"></i>
-                      </span>
-                    </a>
-                    00:00:00
-                  </div>
-          </div>
-          
+      <div class="columns">
+        <div class="column">          
+              <input type="checkbox" class="mr-4 is-small is-inline" onchange="TonaProject.EditTask(event,{{task.id}},'status','done')">
+              {% set task_due = "" %}
+              {% if task.due %}
+                {% set task_due = convert_datetime_tz(obj2str=task.due) %}
+              {% endif %}
+              <input class="input is-small is-inline" type="datetime-local" value="{{task_due}}" title="Due"
+                onchange="TonaProject.EditTask(event,{{task.id}},'due')"/>
+                <div class="is-pulled-right mr-4 widget-time-entry" data-res-model="{{task._meta.table_name}}" data-res-id="{{task.id}}">
+                  <span class="time-entry-duration">00:00:00</span>
+                  <a class="is-light start-time-entry" title="Start time entry">
+                    <span class="icon is-small">
+                      <i class="fas fa-clock"></i>
+                    </span>
+                  </a>
+                  <a class="is-light stop-time-entry is-hidden" title="Stop time entry">
+                    <span class="icon is-small">
+                      <i class="fas fa-stop"></i>
+                    </span>
+                  </a>
+                </div>
         </div>
-
-        <div class="columns">
-          <div class="column">
-            <input onblur="TonaProject.EditTask(event,{{task.id}},'name')" class="input" type="text" placeholder="What needs doing?" value="{{task.name}}">
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column">
-            <textarea onblur="TonaProject.EditTask(event,{{task.id}},'description')" class="textarea" placeholder="Description" rows="10">{{ task.description if task.description else ''}}</textarea>
-          </div>
-        </div>
-        <!--div class="columns">
-          <div class="tabs is-small">
-            <ul>
-              <li class="is-active"><a>Comments</a></li>
-              <li><a>Attachments</a></li>
-            </ul>
-          </div>
-        </div-->
-        {% else %}
-          <div class="has-text-centered">
-            Click a task title  to view its detail
-          </div>
-        {% endif %}
+        
       </div>
+
+      <div class="columns">
+        <div class="column">
+          <input onblur="TonaProject.EditTask(event,{{task.id}},'name')" class="input" type="text" placeholder="What needs doing?" value="{{task.name}}">
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <textarea onblur="TonaProject.EditTask(event,{{task.id}},'description')" class="textarea" placeholder="Description" rows="10">{{ task.description if task.description else ''}}</textarea>
+        </div>
+      </div>
+      <!--div class="columns">
+        <div class="tabs is-small">
+          <ul>
+            <li class="is-active"><a>Comments</a></li>
+            <li><a>Attachments</a></li>
+          </ul>
+        </div>
+      </div-->
+      {% else %}
+        <div class="has-text-centered">
+          Click a task title  to view its detail
+        </div>
+      {% endif %}
+    </div>
     
 </div>
 

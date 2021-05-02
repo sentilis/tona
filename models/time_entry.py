@@ -31,27 +31,34 @@ class TimeEntry(BaseModel):
     res_id = peewee.IntegerField(null=True)  # Model record id
 
 
-def create_time_entry(name: str, start: str, stop: str, res_model: str = None, res_id: int = None):
+def create_time_entry(name: str, start: str, stop: str, res_model: str = None, res_id: str = None):
     raise NotImplementedError
 
-def start_time_entry(name: str, start: str, res_model: str = None, res_id: int = None):
+def start_time_entry(name: str, start: str, res_model: str = None, res_id: str = None):
+    if active_time_entry() is not None:
+        raise Exception("You have an active time entry")
     data = {"name": name, 'start': format_datetime(start) }
+    print(res_id, res_model)
+    if res_model and res_id:
+        res_id = int(res_id)
+        data.update({"res_model": res_model, "res_id": res_id})
+    print(data)
     id = TimeEntry.create(**data)
-    data.update({"id": id.id, 'start': start})
-    return data
+    return id.to_dict()
 
 def stop_time_entry(id: int, stop: str):
-    row = TimeEntry.check(id)[0]
-    stoptmp = format_datetime(stop)
+    if id == 0:
+        row = active_time_entry()
+        if row is None:
+            raise Exception("Haven't an active time entry")
+        id = row.id
+    else:
+        row = TimeEntry.check(id)[0]
+    stoptmp = format_datetime(str2obj=stop)
     duration = (stoptmp - row.start).total_seconds()
     data = {TimeEntry.stop: stoptmp, TimeEntry.duration: duration}
     TimeEntry.update(data).where(TimeEntry.id == id).execute()
-    return {
-        "id": row.id,
-        "start": format_datetime(obj2str=row.start),
-        "stop": stop,
-        "name": row.name
-    }
+    return TimeEntry.check(id)[0].to_dict()
 
 def active_time_entry():
     try:

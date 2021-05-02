@@ -174,38 +174,4 @@ def api_project_task(id=0):
         payload['message'] = str(e)
     return jsonify(payload), code
 
-# Timer
-@app.route("/timer")
-def timer():
-    rows = TimeEntry.select().where(TimeEntry.active == True).order_by(TimeEntry.stop.desc()).limit(10)
-    te = active_time_entry()
-    return render_template("timer/timer.html", rows=rows, time_entry=te)
-
-# API Timer
-@app.route(join(api, "time-entry/start"), methods=['POST'])
-def api_time_entry_start():
-    payload = api_response()
-    code = 400
-    try:
-        data = request.json
-        payload['payload'] = start_time_entry(data.get('name'), data.get('start'))
-        payload['ok'] = True
-        code = 200
-    except Exception as e:
-        app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
-
-@app.route(join(api, "time-entry/stop"), methods=['POST'])
-def api_time_entry_stop():
-    payload = api_response()
-    code = 400
-    try:
-        data = request.json
-        payload['payload'] = stop_time_entry(int(data.get('id')), data.get('stop'))
-        payload['ok'] = True
-        code = 200
-    except Exception as e:
-        app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
+import web.controllers.time_entry

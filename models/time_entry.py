@@ -87,7 +87,20 @@ def format_duration(seconds: float, format: str = "clock"):
 
 def fetch(condition=""):
     sql = f"""
-        select * from (select
+        select * from (
+        
+        select
+            t.id,
+            ( o.name || ' / '|| ok.name) as name,
+            t.start, t.stop , t.duration
+        from time_entry t
+        inner join objective_keyresult ok on t.res_id = ok.id
+        inner join objective o on ok.objective_id = o.id
+        where t.active = TRUE and t.res_model != '' and t.res_id != 0 and t.res_model = 'objective_keyresult'
+
+        union
+
+        select
             t.id,
             ( p.name || ' / '|| pt.name) as name,
             t.start, t.stop , t.duration
@@ -103,7 +116,7 @@ def fetch(condition=""):
             t.name,
             t.start, t.stop , t.duration
         from time_entry t
-        where t.res_model is null and t.res_id is null and t.active = TRUE) T1 {condition} ; 
+        where t.res_model is null and t.res_id is null and t.active = TRUE) T1 {condition}
     """
     rows = []
     cursor = db.execute_sql(sql)

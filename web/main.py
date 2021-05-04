@@ -182,3 +182,4 @@ def api_project_task(id=0):
     return jsonify(payload), code
 
 import web.controllers.time_entry
+import web.controllers.objective

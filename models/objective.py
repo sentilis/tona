@@ -18,7 +18,7 @@ from models.base import BaseModel
 import re
 import datetime
 from dateutil.relativedelta import relativedelta
-
+from utils import format_datetime, FORMAT_DATE
 Q  = '*q'
 Q1 = '*q1'
 Q2 = '*q2'
@@ -34,8 +34,16 @@ class Objective(BaseModel):
         table_name = 'objective'
 
     name = peewee.CharField()
-    start_at = peewee.DateField()
-    due_at = peewee.DateField()
+    start = peewee.DateField()
+    due = peewee.DateField()
+
+def create_objective(name, start, due):
+    data = {"name": name,
+            "start": format_datetime(start, fmt_in=FORMAT_DATE, obj=True).date(),
+            "due": format_datetime(due, fmt_in=FORMAT_DATE, obj=True).date()}
+    id = Objective.create(**data)
+    return id.to_dict()
+
 
 """
 def get_quarter_by_date(dt: datetime.date):

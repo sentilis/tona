@@ -16,6 +16,7 @@
 import peewee
 import datetime
 from playhouse.shortcuts import model_to_dict
+from utils import format_datetime, FORMAT_DATE
 
 db = peewee.SqliteDatabase(None)
 
@@ -36,10 +37,18 @@ class BaseModel(peewee.Model):
 
     @classmethod
     def check(cls, id):
+        """ Deprecated """
         rows = cls.select().where(cls.id == id, cls.active == True).limit(1)
         if len(rows):
             return rows
-        raise DoesNotExist(f"{cls.__name__}: Record ID {id} not found")
+        raise peewee.DoesNotExist(f"{cls.__name__}: Record ID {id} not found")
+
+    @classmethod
+    def exists(cls, id):
+        row = cls.select().where(cls.id == id, cls.active == True).limit(1).get()
+        if row is not None:
+            return row
+        raise peewee.DoesNotExist(f"{cls.__name__}: Record ID {id} not found")
 
     @classmethod
     def get_unarchived(cls):
@@ -50,4 +59,25 @@ class BaseModel(peewee.Model):
         return cls.select().where(cls.active == False)
 
     def to_dict(self):
-        return model_to_dict(self, recurse=True, exclude=['active'])
+        return model_to_dict(self, recurse=True, exclude=['active', 'created_at', 'edited_at'])
+
+    @classmethod
+    def prepare_fields(cls, data: dict, only: list = [], exclude: list = [], allowed: dict = {}):
+        tmp = {}
+        fields = allowed.keys()
+        if len(only):
+            fields = only
+        for field in fields:
+            if len(exclude) and field in exclude:
+                continue
+            if allowed.get(field) == 'str' and data.get(field, None):
+                tmp.update({field: str(data.get(field))})
+            if allowed.get(field) == 'int' and data.get(field, None):
+                tmp.update({field: int(data.get(field))})
+            if allowed.get(field) == 'date' and data.get(field, None):
+                tmp.update({field: format_datetime(data.get(field), fmt_in=FORMAT_DATE, obj=True).date()})
+            if allowed.get(field) == 'datetime' and data.get(field, None):
+                tmp.update({field: format_datetime(data.get(field), obj=True)})
+        if not len(tmp.keys()):
+            raise Exception(f"{cls.__name__}: Fields allowed: {str(fields)} and exclude: {str(exclude)}")
+        return tmp

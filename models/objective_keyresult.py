@@ -17,25 +17,55 @@ import peewee
 from models.base import BaseModel
 from models.objective import Objective
 import re
-
+from utils import format_datetime, FORMAT_DATE
+from datetime import date
 INCREASING = 'increasing'
 DECREASING = 'decreasing'
 
-class ObjectiveKey(BaseModel):
+class ObjectiveKeyResult(BaseModel):
 
     class Meta:
-        table_name = 'objective_key'
+        table_name = 'objective_keyresult'
 
     objective_id = peewee.ForeignKeyField(Objective)
 
     name = peewee.CharField()
     metric_measure = peewee.CharField(max_length=10, default='percent')  # percent%, number# , currency$, custom x
     changes_metric = peewee.CharField(max_length=20, default='increasing')  # increasing+, decreasing-
-    start_value = peewee.IntegerField( default=0)
-    target_value = peewee.IntegerField( default=100)
-    start_at = peewee.DateField()
-    due_at = peewee.DateField()
+    start_target = peewee.IntegerField(default=0)
+    end_target = peewee.IntegerField(default=100)
+    start = peewee.DateField()
+    due = peewee.DateField()
     status = peewee.CharField(max_length=10, default='off-track')  # off-track (<60) at-risk (>60 80<) on-track (>80)
+
+    @classmethod
+    def prepare_fields(self, data, only=[], exclude=[], allowed={}):
+        allowed = {
+            'name': 'str',
+            'metric_measure': 'str',
+            'changes_metric': 'str',
+            'start_target': 'int',
+            'end_target': 'int',
+            'start': 'date',
+            'due': 'date',
+            'objective_id': 'int'
+        }
+        return super(ObjectiveKeyResult, self).prepare_fields(data, only=only, exclude=exclude, allowed=allowed)
+
+def create_objective_keyresult(**kwargs):
+    data = ObjectiveKeyResult.prepare_fields(kwargs, only=['name', 'start', 'due', 'objective_id'])
+    row = ObjectiveKeyResult.create(**data)
+    return row.to_dict()
+
+def edit_objective_keyresult(id: int, **kwargs):
+    ObjectiveKeyResult.exists(id)
+    data = ObjectiveKeyResult.prepare_fields(kwargs, only=['name', 'metric_measure', 'changes_metric',
+                                                        'start_target', 'end_target', 'start', 'due'])
+    if not len(data.keys()):
+        raise Exception("ObjectiveKeyResult: is requried min 1 field for update")
+    ObjectiveKeyResult.update(data).where(ObjectiveKeyResult.id == id).execute()
+    return ObjectiveKeyResult.exists(id).to_dict()
+
 """
 def get_metric_measure(name):
     find_metric_measure = re.search(r"(\/\S+)", name)

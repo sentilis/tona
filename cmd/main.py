@@ -27,12 +27,13 @@ from models.base import setup, db
 from models.time_entry import TimeEntry
 from models.project import Project
 from models.project_task import ProjectTask
-
+from models.objective import Objective
+from models.objective_keyresult import ObjectiveKeyResult
 
 @click.group()
 def cli():
     setup("tona.db")
-    db.create_tables([TimeEntry, Project, ProjectTask])
+    db.create_tables([TimeEntry, Project, ProjectTask, Objective, ObjectiveKeyResult])
 
 @click.command(name="webapp")
 @click.option("--debug", "-d", is_flag=True)

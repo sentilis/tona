@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
 from models.base import BaseModel
-from models.objective_key import ObjectiveKey
+#from models.objective_key import ObjectiveKey
 
 
 class ObjectiveResult(BaseModel):
@@ -23,7 +23,7 @@ class ObjectiveResult(BaseModel):
     class Meta:
         table_name = 'objective_result'
 
-    objective_key_id = peewee.ForeignKeyField(ObjectiveKey)
+    #objective_key_id = peewee.ForeignKeyField(ObjectiveKey)
 
-    description = peewee.TextField()
+    description = peewee.TextField(null=True)
     checkin_at = peewee.DateTimeField()

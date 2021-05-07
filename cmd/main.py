@@ -29,11 +29,14 @@ from models.project import Project
 from models.project_task import ProjectTask
 from models.objective import Objective
 from models.objective_keyresult import ObjectiveKeyResult
+from models.objective_keyresult_checkin import ObjectiveKeyResultCheckin
 
 @click.group()
 def cli():
     setup("tona.db")
-    db.create_tables([TimeEntry, Project, ProjectTask, Objective, ObjectiveKeyResult])
+    db.create_tables([TimeEntry,
+                        Project, ProjectTask,
+                        Objective, ObjectiveKeyResult, ObjectiveKeyResultCheckin])
 
 @click.command(name="webapp")
 @click.option("--debug", "-d", is_flag=True)

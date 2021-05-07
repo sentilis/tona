@@ -42,15 +42,42 @@ if ( !Date.prototype.toISOString ) {
   function Tona (){
       var self = {};
 
-      self.NotificationDelete = function(){
-        (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
-          const $notification = $delete.parentNode;
-      
-          $delete.addEventListener('click', () => {
-            $notification.parentNode.removeChild($notification);
-          });
+      self.Notification = function(e, msg=null, type="danger", interval=5000){
+        classColor = "is-danger"
+        switch(type){
+          case "info":
+            classColor = "is-info"
+            break;
+          case "success":
+            classColor = "is-success"
+            break;
+          case "warning":
+              classColor = "is-warning"
+              break;
+          case "danger":
+          default:
+        }
+        (document.querySelectorAll('.notification') || []).forEach(($node) => {
+          var $notification = $node.parentNode;
+          $notification.classList.remove('is-hidden');
+          $node.classList.add(classColor);
+          if (msg != null){
+            $node.querySelector("#notification-content").innerHTML = msg
+          }
+          var $delete = $notification.querySelector(".delete");
+          if ($delete != null){
+            $delete.addEventListener('click', () => {
+              $notification.classList.add("is-hidden");
+              $node.classList.remove(classColor);
+            });
+            setInterval(function() {
+              $notification.classList.add("is-hidden");
+              $node.classList.remove(classColor);
+            }, interval);
+          }
         });
       }
+
       self.Modal = {
         modal : null,
         Done: ()=>{},
@@ -77,6 +104,33 @@ if ( !Date.prototype.toISOString ) {
 
         }, 
 
+      };
+
+
+      self.Tabs = function(){
+        (document.querySelectorAll('.tabs') || []).forEach(($tabs)=>{
+          ($tabs.querySelectorAll('a') || []).forEach(($a)=>{
+              $a.addEventListener('click', (e)=>{
+                  $ul = e.target.parentNode.parentNode;
+                  var tabsGroup = $ul.dataset.tabsGroup;
+                  var tabId = e.target.dataset.tabId;
+                  $li = $ul.querySelector("li.is-active");
+                  if ($li.classList != null){
+                      $li.classList.remove('is-active')
+                  }
+                  if (e.target.parentNode.classList != null){
+                      e.target.parentNode.classList.add('is-active')
+                  }
+                  (document.querySelectorAll("[data-tabs-group-id='"+tabsGroup+"']") || []).forEach(($tabContent)=>{
+                    if ($tabContent.id == tabsGroup+"-"+tabId){
+                      $tabContent.classList.remove("is-hidden");
+                    }else{
+                      $tabContent.classList.add("is-hidden");
+                    }
+                  });
+              }); 
+          });        
+        });
       };
       return self;
   }

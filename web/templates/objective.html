@@ -148,50 +148,41 @@
         <input onblur="Objective.EditKeyResult(event,{{keyresult.id}},'end_target')" type="number" class="input is-small" value="{{keyresult.end_target}}"/>
       </div>
     </div>
-    <div class="columns">
+
+    <div id="objective-keyreuslt-tabs" class="columns">
       <div class="column">
         <div class="tabs is-small">
-          <ul>
-            <li class="is-active"><a>Check In</a></li>
-            <li><a>History</a></li>
+          <ul data-tabs-group="objective-keyreuslt">
+            <li class="is-active"><a data-tab-id="checkin">Check In</a></li>
+            <li><a onclick="Objective.LoadCheckin(event,{{keyresult.id}})" data-tab-id="history">History</a></li>
           </ul>
         </div>
       </div>
     </div>
 
-    <div id="objective-key-tab-checkin">
+    <div id="objective-keyreuslt-checkin" data-tabs-group-id="objective-keyreuslt">
       <article class="media">
         <div class="media-content">
           <div class="field">
             <p class="control">
-              <textarea class="textarea" rows="3" placeholder="Add a comment..."></textarea>
+              <textarea id="objective-keyreuslt-checkin-comment" class="textarea" rows="3" placeholder="Add a comment..."></textarea>
             </p>
           </div>
           <nav class="level">
             <div class="level-left">
               <div class="level-item">
-                <a class="button is-info">Submit</a>
+                <a class="button is-info" onclick="Objective.AddCheckin(event, {{keyresult.id}})">Submit</a>
               </div>
             </div>
           </nav>
         </div>
       </article>
     </div>
+
+    <div id="objective-keyreuslt-history" data-tabs-group-id="objective-keyreuslt" class="is-hidden">
       
-    <div id="objective-key-tab-history" class="is-hidden">
-      <article class="media">
-        <div class="media-content">
-          <div class="content">
-            <p>
-              <strong>Barbara Middleton</strong>
-              <br>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis porta eros lacus, nec ultricies elit blandit non. Suspendisse pellentesque mauris sit amet dolor blandit rutrum. Nunc in tempus turpis.
-              <br>
-            </p>
-          </div>
-        </div>
-      </article>
-      </div>
+    </div>
+
     {% else %}
       Click title to view its detail
     {% endif %}

@@ -18,6 +18,7 @@ from web.main import app
 from utils import api_response
 from models.objective import Objective, create_objective
 from models.objective_keyresult import ObjectiveKeyResult, create_objective_keyresult, edit_objective_keyresult
+from models.objective_keyresult_checkin import create_objective_keyresult_checkin, ObjectiveKeyResultCheckin
 import datetime
 
 @app.route("/objective")
@@ -85,7 +86,7 @@ def api_objective():
 
 @app.route("/api/objective/keyresult", methods=['POST'])
 @app.route("/api/objective/keyresult/<int:id>", methods=['PUT'])
-def api_objective_key(id=0):
+def api_objective_keyresult(id=0):
     payload = api_response()
     code = 400
     try:
@@ -94,6 +95,36 @@ def api_objective_key(id=0):
             payload['payload'] = edit_objective_keyresult(id, **data)
         else:
             payload['payload'] = create_objective_keyresult(**data)
+        payload['ok'] = True
+        code = 200
+    except Exception as e:
+        app.logger.error(e)
+        payload['message'] = str(e)
+    return jsonify(payload), code
+
+@app.route("/api/objective/keyresult/checkin", methods=['POST', 'GET'])
+def api_objective_keyresult_checkin(id=0):
+    payload = api_response()
+    code = 400
+    try:
+        if request.method == 'POST':
+            data = request.json
+            payload['payload'] = create_objective_keyresult_checkin(**data)
+        else:
+            offset = int(request.args.get('offset', 1))
+            limit = int(request.args.get('limit', 10))
+            objective_keyresult_id = int(request.args.get('objective_keyresult_id', 0))
+            data = []
+            rows = []
+            if objective_keyresult_id:
+                rows = ObjectiveKeyResultCheckin.select().where(
+                    ObjectiveKeyResultCheckin.objective_keyresult_id == objective_keyresult_id,
+                ).order_by(ObjectiveKeyResultCheckin.checkin.desc()).paginate(offset, limit)
+            else:
+                rows = ObjectiveKeyResultCheckin.select().order_by(ObjectiveKeyResultCheckin.checkin.desc()).paginate(offset, limit)
+            for row in rows:
+                data.append(row.to_dict())
+            payload['payload'] = data
         payload['ok'] = True
         code = 200
     except Exception as e:

@@ -18,20 +18,7 @@
 
 <body>
     <header class="pl-4 pr-4">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            {% for message in messages %}
-            <div class="notification is-danger is-light">
-                <button class="delete"></button>
-                {{ message }}
-            </div>
-            {% endfor %}
-            <script type="text/javascript">
-                document.addEventListener("DOMContentLoaded",Tona.NotificationDelete);
-            </script>
-            {% endif %}
-        {% endwith %}
-        <nav class="navbar is-transparent">
+        <nav class="navbar is-fixed-top">
             <div class="navbar-brand">
                 <a class="navbar-item" href="/">
                     <!--img src="{{url_for('static', filename='img/logo.png')}}" width="112" height="28"-->
@@ -42,10 +29,8 @@
                 <span></span>
                 <span></span>
                 </div>
-            </div>
-            
+            </div>            
             <div id="tona-navbar-menu" class="navbar-menu">
-
                 <div class="navbar-end">
                     <a class="navbar-item" href="/time-entry">
                         Timer
@@ -60,7 +45,24 @@
             </div>
         </nav>
     </header>
-    <main class="ml-4 mr-4 mt-5">
+    <main class="ml-5 mr-5 mt-4 pt-6">
+        <div class="columns is-mobile is-centered is-hidden">
+            <div class="column has-text-centered notification is-light">
+                <button class="delete"></button>
+                <p id="notification-content" class="content is-small">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                    <script type="text/javascript">
+                        document.addEventListener("DOMContentLoaded",Tona.Notification);
+                    </script>
+                    {% endif %}
+                {% endwith %}
+                </p>
+            </div>
+        </div>
         {% block content %}{% endblock %}
     </main>
     <footer class="footer mt-5">

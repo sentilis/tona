@@ -65,6 +65,24 @@
 
   </div>
   <div class="column">
+
+    {% if is_year %}
+    <aside class="menu">
+      <ul class="menu-list">
+        {% for row in objectives.keys() %}
+          <li>
+            <a class="is-active">{{row.name}}</a>
+            <ul>
+              {% for row2 in objectives[row] %}
+                <li><a href="/objective/{{row.id}}/keyresult/{{row2.id}}">{{row2.name}}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    {% endif %}
     {% if is_objective %}
     <div class="control mb-5">
       <input id="task-name" class="input is-small" type="text" 
@@ -74,12 +92,11 @@
             data-objective-due="{{objective.due}}"
             placeholder="Add key result to '{{objective.name}}', press Enter to save.">
     </div>
-
     <aside class="menu">
       <ul id="objective-key-menu-list" class="menu-list">
         {% for row in keyresults %}
         <li>
-          <a href="/objective/{{row.objective_id.id}}/keyresult/{{row.id}}">
+          <a class="{{ 'is-active' if is_keyresult and keyresult.id == row.id else '' }}" href="/objective/{{row.objective_id.id}}/keyresult/{{row.id}}">
             {{row.name}}
             <span class="is-pulled-right ml-2">
               50%

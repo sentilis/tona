@@ -30,10 +30,9 @@
                         'Content-Type': 'application/json'
                     },
                 }).then(response => response.json()).then(function(data){
-                    console.log(data)
                     var project_menu_list = document.querySelector("#project-menu-list");
                     var li = document.createElement("li");
-                    li.innerHTML = '<a><span class="icon"><i class="fas fa-tasks"></i></span>'+txtName.value+'</a>';
+                    li.innerHTML = '<a href="/project/'+data['payload']['id']+'">'+data['payload']['name']+'</a>';
                     project_menu_list.append(li);
                     txtName.value = ""
                     Tona.Modal.Close()

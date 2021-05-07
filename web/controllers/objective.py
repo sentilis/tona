@@ -34,9 +34,17 @@ def objective(objective_id="", key_id=0):
     objective = None
     keyresults = []
     keyresult = None
+    now = datetime.date.today()
+    objectives = Objective.select().where(
+        (Objective.start.year == now.year) & (Objective.due.year == now.year),
+        Objective.active == True).order_by(Objective.name.asc())
 
     if objective_id == "year":
         is_year = True
+        tmp = {}
+        for o in objectives:
+            tmp.update({ o : ObjectiveKeyResult.select().where(ObjectiveKeyResult.objective_id == o.id, ObjectiveKeyResult.active == True) })
+        objectives = tmp
     else:
         try:
             objective_id = int("".join([n for n in objective_id if n.isdigit()]))
@@ -46,11 +54,6 @@ def objective(objective_id="", key_id=0):
                 keyresults = ObjectiveKeyResult.select().where(ObjectiveKeyResult.objective_id == objective.id, ObjectiveKeyResult.active == True)
         except Exception as e:
             flash(str(e))
-
-    now = datetime.date.today()
-    objectives = Objective.select().where(
-        (Objective.start.year == now.year) & (Objective.due.year == now.year),
-        Objective.active == True).order_by(Objective.name.asc())
 
     if key_id:
         try:

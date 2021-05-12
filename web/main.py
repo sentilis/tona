@@ -183,3 +183,4 @@ def api_project_task(id=0):
 
 import web.controllers.time_entry
 import web.controllers.objective
+import web.controllers.habit

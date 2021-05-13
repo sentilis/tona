@@ -88,10 +88,20 @@ def format_duration(seconds: float, format: str = "clock"):
 def fetch(condition=""):
     sql = f"""
         select * from (
-        
+
         select
             t.id,
-            ( o.name || ' / '|| ok.name) as name,
+            ( 'Habit' || ' / '|| h.name) as name,
+            t.start, t.stop , t.duration
+        from time_entry t
+        inner join habit h on t.res_id = h.id
+        where t.active = TRUE and t.res_model != '' and t.res_id != 0 and t.res_model = 'habit'
+
+        union 
+
+        select
+            t.id,
+            ( 'Objective Key Result / ' || o.name || ' / '|| ok.name) as name,
             t.start, t.stop , t.duration
         from time_entry t
         inner join objective_keyresult ok on t.res_id = ok.id
@@ -102,7 +112,7 @@ def fetch(condition=""):
 
         select
             t.id,
-            ( p.name || ' / '|| pt.name) as name,
+            ( 'Project Task / ' || p.name || ' / '|| pt.name) as name,
             t.start, t.stop , t.duration
         from time_entry t
         inner join project_task pt on t.res_id = pt.id

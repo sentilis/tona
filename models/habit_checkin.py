@@ -18,7 +18,25 @@ from models.base import BaseModel
 from models.habit import Habit
 
 class HabitCheckin(BaseModel):
+    
+    class Meta:
+        table_name = 'habit_checkin'
 
     habit_id = peewee.ForeignKeyField(Habit)
-    description = peewee.TextField()
-    checkin_at = peewee.DateTimeField()
+    name = peewee.TextField()
+    checkin = peewee.DateField()
+
+
+    @classmethod
+    def prepare_fields(self, data, only=[], exclude=[], allowed={}):
+        allowed = {
+            'name': 'str',
+            'checkin': 'date',
+            'habit_id': 'int'
+        }
+        return super(HabitCheckin, self).prepare_fields(data, only=only, exclude=exclude, allowed=allowed)
+
+def create_habit_checkin(**kwargs):
+    data = HabitCheckin.prepare_fields(kwargs, only=['name', 'checkin','habit_id'])
+    row = HabitCheckin.create(**data)
+    return row.to_dict()

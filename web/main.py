@@ -31,7 +31,7 @@ def utility_processor():
         FORMAT_DATE=FORMAT_DATE,
         FORMAT_TIME=FORMAT_TIME,
         FORMAT_DATETIME=FORMAT_DATETIME,
-        tz=app.config['tz'],
+        TZ=app.config['TZ'],
         format_duration=format_duration,
         convert_datetime=convert_datetime)
     return utility
@@ -95,7 +95,7 @@ def project(project_id="", task_id=0):
                                                     ProjectTask.due != None,
                                                     ProjectTask.status != 'done')
             else:
-                label = convert_datetime(now, tz_out=app.config['tz'], fmt_out="%A, %b %d") if group != 'today' else 'today'
+                label = convert_datetime(now, tz_out=app.config['TZ'], fmt_out="%A, %b %d") if group != 'today' else 'today'
                 tasks[label] = ProjectTask.select().where(
                                                     (ProjectTask.due.year == now.year) &
                                                     (ProjectTask.due.month == now.month) &

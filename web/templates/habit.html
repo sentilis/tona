@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Habit{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <script src="{{url_for('static', filename='js/habit.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="columns is-mobile">
+  
+  <div class="column is-one-fifth">
+    <aside class="menu">
+      <p class="menu-label">
+        General
+      </p>
+      <ul class="menu-list">
+        <li><a href="/habit/today" class="{{'is-active' if is_today else ''}}"><span class="icon"><i class="fas fa-calendar-day"></i></span>Today</a></li>
+        <!--li><a href="/habit/archive"><span class="icon"><i class="fas fa-archive"></i></span>Archive</a></li-->
+      </ul>
+
+      <p class="menu-label">
+        Habits
+        <a class="is-pulled-right" onclick="Tona.Modal.Show('modal-add-habit')"><span class="icon"><i class="fas fa-plus"></i></span></a>
+
+        <div id="modal-add-habit" class="modal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Add Habit</p>
+              <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+              <input id="habit-name" type="text" class="input is-primary" placeholder="Name" required/>
+
+              <!--div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Start</label>
+                    <div class="control">
+                      <input id="objetive-start" type="date" class="input"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Due</label>
+                    <div class="control">
+                      <input id="objetive-due" type="date" class="input"/>
+                    </div>
+                  </div>
+                </div>
+              </div-->
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" onclick="Habit.AddHabit(event)">Save changes</button>
+              <button class="button">Cancel</button>
+            </footer>
+          </div>
+        </div>
+
+      </p>
+      <ul id="habit-menu-list" class="menu-list">
+        {% for row in habits %}  
+          <li><a href="/habit/{{row.id}}" class=" {{ 'is-active' if is_habit and row.id == habit.id else ''}}">{{row.name}}</a></li>
+        {% endfor %}
+      </ul>
+    </aside>
+  </div>
+  
+    <div class="column">
+      {% if is_today %}
+      <aside class="menu">
+
+        <ul class="menu-list">
+          {% for key in habits_aux %}
+          <p class="menu-label">
+            {{key}}
+          </p>
+          {% for row in habits_aux[key] %}
+            <li>
+              <a href="/habit/{{row.id}}">
+                {{row.name}}        
+              </a>
+            </li>
+          {% endfor %}
+          {% endfor %}
+        </ul>
+      </aside>
+
+      {% elif is_habit %}
+        <div class="mb-5 has-text-centered">
+          <h4 class="subtitle is-4">
+            {{habit.name}}
+          </h3>
+        </div>
+        <div class="control">
+          <textarea id="habit-checkin-name" class="textarea" rows="2" placeholder="Add a comment..."></textarea>
+          <a class="mt-2 button is-small is-primary is-rounded is-light is-fullwidth" onclick="Habit.AddCheckin(event, {{habit.id}})">Check In</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="column">
+      {% if habit %}
+        <div>
+          <span>CheckIn</span>
+          <!-- Start Widget Timer-->
+          <div class="is-pulled-right mr-4 widget-time-entry" data-res-model="{{habit._meta.table_name}}" data-res-id="{{habit.id}}">
+            <span class="time-entry-duration">00:00:00</span>
+            <a class="is-primary start-time-entry" title="Start time entry">
+              <span class="icon is-small">
+                <i class="fas fa-clock"></i>
+              </span>
+            </a>
+            <a class="stop-time-entry is-hidden is-danger" title="Stop time entry">
+              <span class="icon is-small">
+                <i class="fas fa-stop"></i>
+              </span>
+            </a>
+          </div>
+          <!-- End Widget Timer-->
+        </div>
+                  
+        <div id="habit-checkin">
+
+        </div>
+        <script type="text/javascript">
+          document.addEventListener("DOMContentLoaded", Habit.LoadCheckin(null, "{{habit.id}}"));
+        </script>
+      {% else %}
+        <div class="has-text-centered">
+          Click a title to view its detail
+        </div>
+      {% endif %}
+    </div>
+  
+</div>
+
+
+
+{% endblock %}

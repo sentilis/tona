@@ -15,6 +15,21 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import re
 
+def api_response(ok=False, message=None, payload=None):
+    return {
+        "ok": ok,
+        "message": message,
+        "payload": payload
+    }
+
+def str2int(val: str):
+    try:
+        val = int("".join([n for n in val if n.isdigit()]))
+        return val
+    except Exception as e: 
+        pass
+    return 0
+
 def path_storage():
     pass
 
@@ -28,8 +43,3 @@ def name_constraint(name):
     return ' '.join(name)
 
 
-def dt_utc():
-    pass
-
-def dt_local():
-    pass

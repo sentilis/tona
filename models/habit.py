@@ -18,7 +18,24 @@ from models.base import BaseModel
 
 class Habit(BaseModel):
 
-    name = peewee.CharField()
-    frequency = peewee.CharField()  # daily, weekly, interval
-    every = peewee.CharField()  # daily: mon,thus,wed ... weekly: 1week o  interval: 3days, 5days
+    class Meta:
+        table_name = 'habit'
 
+    name = peewee.CharField()
+    frequency = peewee.CharField(default="daily")  # daily, weekly, interval
+    # daily: mon,thus,wed ... weekly: 1week o  interval: 3days, 5days
+    every = peewee.CharField(default="sunday,monday,tuesday,wednesday,thursday,friday,saturday")
+
+    @classmethod
+    def prepare_fields(self, data, only=[], exclude=[], allowed={}):
+        allowed = {
+            'name': 'str',
+            'frequency': 'str',
+            'every': 'str'
+        }
+        return super(Habit, self).prepare_fields(data, only=only, exclude=exclude, allowed=allowed)
+
+def create_habit(**kwargs):
+    data = Habit.prepare_fields(kwargs, only=['name'])
+    row = Habit.create(**data)
+    return row.to_dict()

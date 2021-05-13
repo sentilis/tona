@@ -82,8 +82,8 @@
                 {% for row in time_entries %}
                   <tr>
                     <th>{{row[1]}}</th>
-                    <th>{{convert_datetime(row[2], tz_out=tz, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME)}}</th>
-                    <th>{{convert_datetime(row[3], tz_out=tz, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME) if row[3] else ''}}</th>
+                    <th>{{convert_datetime(row[2], tz_out=TZ, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME)}}</th>
+                    <th>{{convert_datetime(row[3], tz_out=TZ, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME) if row[3] else ''}}</th>
                     <td>{{format_duration(row[4])}}</td>
                   </tr>
                 {% endfor %}

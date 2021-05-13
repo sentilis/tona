@@ -80,7 +80,6 @@ if ( !Date.prototype.toISOString ) {
 
       self.Modal = {
         modal : null,
-        Done: ()=>{},
         Close: function (){
           self.Modal.modal.classList.remove('is-active');
           self.Modal.modal = null;
@@ -96,17 +95,10 @@ if ( !Date.prototype.toISOString ) {
           (self.Modal.modal.querySelectorAll('.modal-card-foot button:not(.is-success)') || []).forEach(($delete)=>{
             $delete.addEventListener('click', self.Modal.Close);
           });
-          
-          /*(self.Modal.modal.querySelectorAll('.modal-card-foot button.is-success') || []).forEach(($delete)=>{
-            console.log($delete);
-            $delete.addEventListener('click', self.Modal.Done);
-          });*/
-
-        }, 
+        },
 
       };
-
-
+      
       self.Tabs = function(){
         (document.querySelectorAll('.tabs') || []).forEach(($tabs)=>{
           ($tabs.querySelectorAll('a') || []).forEach(($a)=>{
@@ -132,6 +124,25 @@ if ( !Date.prototype.toISOString ) {
           });        
         });
       };
+
+      self.SetHeaders = function(headers={}) {
+        
+        var dafaultHeaders = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+
+        if(localStorage.jwt) {
+          dafaultHeaders['Authorization'] = `Bearer ${localStorage.jwt}`;
+        } 
+        
+        return {
+          ...headers,
+          ...dafaultHeaders
+        }
+
+      };
+
       return self;
   }
 

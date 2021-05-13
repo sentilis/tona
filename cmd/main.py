@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2021  The Project OKRESULTS Authors
+#    Copyright (C) 2021 The Project TONA Authors
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,13 +30,16 @@ from models.project_task import ProjectTask
 from models.objective import Objective
 from models.objective_keyresult import ObjectiveKeyResult
 from models.objective_keyresult_checkin import ObjectiveKeyResultCheckin
+from models.habit import Habit
+from models.habit_checkin import HabitCheckin
 
 @click.group()
 def cli():
     setup("tona.db")
     db.create_tables([TimeEntry,
                         Project, ProjectTask,
-                        Objective, ObjectiveKeyResult, ObjectiveKeyResultCheckin])
+                        Objective, ObjectiveKeyResult, ObjectiveKeyResultCheckin,
+                        Habit, HabitCheckin])
 
 @click.command(name="webapp")
 @click.option("--debug", "-d", is_flag=True)
@@ -44,7 +47,7 @@ def cli():
 @click.option("--time-zone", "-t", type=click.STRING, default="UTC", help="Linux tz: https://superuser.com/a/1589527")
 def cli_webapp(time_zone, port, debug):
     webapp.secret_key = os.urandom(16)
-    webapp.config['tz'] = time_zone
+    webapp.config['TZ'] = time_zone
     webapp.run(debug=debug, host='0.0.0.0', port=port)
 
 

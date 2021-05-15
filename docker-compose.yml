@@ -1,0 +1,10 @@
+version: "3.7"
+
+services: 
+    sentilis-tona:
+        container_name: sentilis-tona
+        build: .
+        ports: 
+            - 5001:5001
+        #volumes: # Custom data storage
+        #    - storage:~/.config/tona

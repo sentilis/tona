@@ -13,7 +13,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import re
 
 def api_response(ok=False, message=None, payload=None):
     return {
@@ -26,7 +25,7 @@ def str2int(val: str):
     try:
         val = int("".join([n for n in val if n.isdigit()]))
         return val
-    except Exception as e: 
+    except Exception as e:
         pass
     return 0
 

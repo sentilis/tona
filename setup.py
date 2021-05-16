@@ -20,15 +20,18 @@ import sys
 
 class PublishCommand(Command):
 
-    user_options = []
+    user_options = [
+        ('testpypi', 't', "Publish on https://test.pypi.org/")
+    ]
 
     def initialize_options(self):
-        pass
+        self.testpypi = 0
 
     def finalize_options(self):
         pass
 
     def run(self):
+
         try:
             print("Removing previous builds ...")
             rmtree("./dist")
@@ -41,8 +44,10 @@ class PublishCommand(Command):
 
         print("Uploading the package to PyPi via Twine…")
 
-        os.system("twine upload --repository testpypi dist/*")
-        #os.system("twine upload dist/*")
+        if self.testpypi:
+            os.system("twine upload --repository testpypi dist/*")
+        else:
+            os.system("twine upload dist/*")
 
 
 long_description = ""
@@ -56,7 +61,7 @@ with open("requirements.txt", encoding="utf-8") as f:
 
 setup(
     name="tona",
-    version="0.1.1",
+    version="0.1.0",
     url="https://github.com/sentilis/tona",
     author="Jose Hbez",
     author_email="me@josehbez.com",

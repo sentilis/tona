@@ -1,6 +1,48 @@
+# -*- coding: utf-8 -*-
+#    Copyright (C) 2021  The Project TONA Authors
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from setuptools import setup, Command
+from shutil import rmtree
+import os
+import sys
 
-from setuptools import setup, find_packages
+class PublishCommand(Command):
 
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            print("Removing previous builds ...")
+            rmtree("./dist")
+        except OSError:
+            pass
+
+        print("Building Source and Wheel (universal) distribution…")
+        os.system("{0} setup.py sdist bdist_wheel --universal"
+                  .format(sys.executable))
+
+        print("Uploading the package to PyPi via Twine…")
+
+        os.system("twine upload --repository testpypi dist/*")
+        #os.system("twine upload dist/*")
 
 
 long_description = ""
@@ -14,11 +56,13 @@ with open("requirements.txt", encoding="utf-8") as f:
 
 setup(
     name="tona",
-    version="0.1.0",
+    version="0.1.1",
     url="https://github.com/sentilis/tona",
-    author="Sentilis",
+    author="Jose Hbez",
+    author_email="me@josehbez.com",
     description="Lightweight tools for personal productivity",
-    long_description="",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=[
         'tona',
         'tona.cmd',
@@ -42,14 +86,14 @@ setup(
     install_requires=requirements,
     license="GPLv3",
     classifiers=[
-        "Development Status :: 1 - Beta",
+        "Development Status :: 4 - Beta",
 
         "Environment :: Console",
 
         "Intended Audience :: End Users/Desktop",
         "Intended Audience :: Developers",
 
-        "License :: OSI Approved :: GPLv3 License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 
         "Operating System :: MacOS",
         "Operating System :: Microsoft",
@@ -66,5 +110,8 @@ setup(
         "Programming Language :: Python :: 3.8",
 
         "Topic :: Utilities",
-    ]
+    ],
+    cmdclass={
+        "publish": PublishCommand
+    }
 )

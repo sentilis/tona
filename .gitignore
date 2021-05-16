@@ -152,8 +152,7 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/python
-
-okresults.db
 .vscode
 *.db
 storage
+.pypirc

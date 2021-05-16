@@ -1,6 +1,5 @@
-click 
+click
 peewee
 python-dateutil
-tabulate
 flask
 pytz

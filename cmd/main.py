@@ -18,23 +18,25 @@ import click
 import os
 import sys
 
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+#PACKAGE_PARENT = '..'
+#SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+#sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-from web.main import app as webapp
-from models.base import setup as setup_db, db
-from models.time_entry import TimeEntry
-from models.project import Project
-from models.project_task import ProjectTask
-from models.objective import Objective
-from models.objective_keyresult import ObjectiveKeyResult
-from models.objective_keyresult_checkin import ObjectiveKeyResultCheckin
-from models.habit import Habit
-from models.habit_checkin import HabitCheckin
+from tona.web.main import app as webapp
+from tona.models.base import setup as setup_db, db
+from tona.models.time_entry import TimeEntry
+from tona.models.project import Project
+from tona.models.project_task import ProjectTask
+from tona.models.objective import Objective
+from tona.models.objective_keyresult import ObjectiveKeyResult
+from tona.models.objective_keyresult_checkin import ObjectiveKeyResultCheckin
+from tona.models.habit import Habit
+from tona.models.habit_checkin import HabitCheckin
 
 def extract_path(args):
     path = click.get_app_dir('tona')
+    if args is None:
+        return path
 
     def index_path(key_arg):
         index = -1

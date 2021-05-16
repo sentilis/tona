@@ -14,8 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
-from models.base import BaseModel
-from models.objective_keyresult import ObjectiveKeyResult
+from tona.models.base import BaseModel
+from tona.models.objective_keyresult import ObjectiveKeyResult
 
 
 class ObjectiveKeyResultCheckin(BaseModel):

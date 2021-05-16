@@ -14,11 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
-from models.base import BaseModel
-from models.objective import Objective
 import re
-from utils import format_datetime, FORMAT_DATE
 from datetime import date
+from tona.models.base import BaseModel
+from tona.models.objective import Objective
+from tona.utils import format_datetime, FORMAT_DATE
+
 INCREASING = 'increasing'
 DECREASING = 'decreasing'
 

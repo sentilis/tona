@@ -14,9 +14,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
-from models.base import BaseModel
-from models.project import Project
-from utils import format_datetime
+from tona.models.base import BaseModel
+from tona.models.project import Project
+from tona.utils import format_datetime
 
 class ProjectTask(BaseModel):
 

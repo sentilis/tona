@@ -15,11 +15,10 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import datetime
 from flask import render_template, request, jsonify, flash
-from web.main import app
-from utils import api_response , str2int, format_datetime
-from models.habit import Habit,  create_habit
-from models.habit_checkin import HabitCheckin, create_habit_checkin
-import peewee
+from tona.web.main import app
+from tona.utils import api_response , str2int, format_datetime
+from tona.models.habit import Habit,  create_habit
+from tona.models.habit_checkin import HabitCheckin, create_habit_checkin
 
 @app.route("/habit")
 @app.route("/habit/<habit_id>")

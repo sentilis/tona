@@ -14,11 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
-from models.base import BaseModel
 import re
 import datetime
 from dateutil.relativedelta import relativedelta
-from utils import format_datetime, FORMAT_DATE
+from tona.models.base import BaseModel
+from tona.utils import format_datetime, FORMAT_DATE
+
 Q  = '*q'
 Q1 = '*q1'
 Q2 = '*q2'

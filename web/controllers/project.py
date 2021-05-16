@@ -16,10 +16,10 @@
 
 from flask import render_template, request, jsonify, flash
 import datetime
-from web.main import app
-from models.project import create_project, Project
-from models.project_task import create_project_task, edit_project_task, ProjectTask
-from utils import api_response, convert_datetime
+from tona.web.main import app
+from tona.models.project import create_project, Project
+from tona.models.project_task import create_project_task, edit_project_task, ProjectTask
+from tona.utils import api_response, convert_datetime
 
 
 @app.route("/project")

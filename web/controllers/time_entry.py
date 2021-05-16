@@ -1,8 +1,8 @@
 from flask import render_template, request, jsonify
-from web.main import app
-from models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry, fetch
 import datetime
-from utils import api_response
+from tona.web.main import app
+from tona.models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry, fetch
+from tona.utils import api_response
 
 @app.route("/time-entry")
 @app.route("/time-entry/<id>")

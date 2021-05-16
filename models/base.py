@@ -16,7 +16,7 @@
 import peewee
 import datetime
 from playhouse.shortcuts import model_to_dict
-from utils import format_datetime, FORMAT_DATE
+from tona.utils import format_datetime, FORMAT_DATE
 
 db = peewee.SqliteDatabase(None)
 

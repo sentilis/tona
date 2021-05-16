@@ -14,12 +14,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from flask import render_template, request, jsonify, flash
-from web.main import app
-from utils import api_response
-from models.objective import Objective, create_objective
-from models.objective_keyresult import ObjectiveKeyResult, create_objective_keyresult, edit_objective_keyresult
-from models.objective_keyresult_checkin import create_objective_keyresult_checkin, ObjectiveKeyResultCheckin
 import datetime
+from tona.web.main import app
+from tona.utils import api_response
+from tona.models.objective import Objective, create_objective
+from tona.models.objective_keyresult import ObjectiveKeyResult, create_objective_keyresult, edit_objective_keyresult
+from tona.models.objective_keyresult_checkin import create_objective_keyresult_checkin, ObjectiveKeyResultCheckin
+
 
 @app.route("/objective")
 @app.route("/objective/<objective_id>")

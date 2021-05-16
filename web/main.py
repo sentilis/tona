@@ -14,8 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from flask import Flask, render_template
-from models.time_entry import format_duration
-from utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
+from tona.models.time_entry import format_duration
+from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
 
 app = Flask(__name__)
 
@@ -34,7 +34,7 @@ def utility_processor():
 def index():
     return render_template("index.html")
 
-import web.controllers.project
-import web.controllers.time_entry
-import web.controllers.objective
-import web.controllers.habit
+import tona.web.controllers.project
+import tona.web.controllers.time_entry
+import tona.web.controllers.objective
+import tona.web.controllers.habit

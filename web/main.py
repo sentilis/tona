@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from flask import Flask, render_template
+import click
+import os
 from tona.models.time_entry import format_duration
 from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
 
@@ -38,3 +40,23 @@ import tona.web.controllers.project
 import tona.web.controllers.time_entry
 import tona.web.controllers.objective
 import tona.web.controllers.habit
+
+
+
+help_storage = "Custom data storage e.g ~/tona-data or skip this option exporing var e.g TONA_STORAGE=~/tona-data"
+help_time_zone = "Frontend render datetime e.g America/Mexico_City"
+
+@click.command(name="webapp")
+@click.pass_context
+@click.option("--debug", "-d", is_flag=True)
+@click.option("--port", "-p", type=click.INT, default=5001)
+@click.option("--time-zone", "-t", type=click.STRING, default="UTC", help=help_time_zone)
+@click.option("--storage", "-s", type=click.STRING, help=help_storage)
+def cli_webapp(ctx, time_zone, port, debug, storage):
+    app.secret_key = os.urandom(16)
+    app.config['STORAGE'] = ctx.obj.get('STORAGE')
+    app.config['TZ'] = time_zone
+    print("Time Zone: ", time_zone)
+    print("Storage: ", app.config['STORAGE'])
+    app.run(debug=debug, host='0.0.0.0', port=port)
+    

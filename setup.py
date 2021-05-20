@@ -86,7 +86,7 @@ setup(
     },
     package_data={'tona': ['web/static/*/*', 'web/templates/*']},
     entry_points={
-        "console_scripts": ["tona=tona.cmd.main:cli"]
+        "console_scripts": ["tona=tona.cmd.main:main"]
     },
     install_requires=requirements,
     license="GPLv3",

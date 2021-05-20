@@ -6,5 +6,7 @@ services:
         build: .
         ports: 
             - 5001:5001
-        #volumes: # Custom data storage
-        #    - storage:~/.config/tona
+        #volumes: # Persist data storage
+        #    - ./storage:/tona/storage
+        #environment:
+        #    TONA_TZ: America/Mexico_City

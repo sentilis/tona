@@ -17,10 +17,7 @@
 (function(window){
     function Objective (){
         var self = {};
-        self.headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
+        
         self.AddObjective = function (e){
             var $modal = document.querySelector("#modal-add-objective");
             var name = $modal.querySelector("#objetive-name");
@@ -32,7 +29,7 @@
                 fetch("/api/objective", {
                     method: 'post',
                     body: JSON.stringify(data),
-                    headers: self.headers,
+                    headers: Tona.SetHeaders(),
                 }).then(response => response.json()).then(function(data){
                     console.log(data);
                     var menu = document.querySelector("#objective-menu-list");
@@ -63,7 +60,7 @@
                 fetch("/api/objective/keyresult", {
                     method: 'post',
                     body: JSON.stringify(data),
-                    headers: self.headers,
+                    headers: Tona.SetHeaders(),
                 }).then(response => response.json()).then(function(data){
                     console.log(data)
                     var menu = document.querySelector("#objective-key-menu-list");
@@ -89,7 +86,7 @@
             fetch("/api/objective/keyresult/"+id, {
                 method: 'put',
                 body: JSON.stringify(data),
-                headers: self.headers,
+                headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
                 console.log(data)
             }).catch(function(error){
@@ -98,7 +95,14 @@
         };
 
         self.AddCheckin = function(e, objective_keyresult_id){
-            var comment = document.querySelector("#objective-keyreuslt-checkin-comment")
+            var id = "objective-keyreuslt-checkin-comment";
+            var comment = document.querySelector("#"+id)
+            var simplemde = Tona.QueueSimpleMDE[id]
+            if ( Tona.IsSimpleMDE(simplemde) ){
+                comment.value = Tona.QueueSimpleMDE[id].value();
+            }
+            
+
             if (comment.value != "") {
                 var date = new Date()
                 var data = {
@@ -110,10 +114,13 @@
                 fetch("/api/objective/keyresult/checkin", {
                     method: 'post',
                     body: JSON.stringify(data),
-                    headers: self.headers,
+                    headers: Tona.SetHeaders(),
                 }).then(response => response.json()).then(function(data){
                     if (data['ok']){
                         comment.value = ""
+                        if (Tona.IsSimpleMDE(simplemde)){
+                            Tona.QueueSimpleMDE[id].value("");
+                        }
                         Tona.Notification(e, "Your chekin is added", type="info")
                     }else{
                         Tona.Notification(e, data['message'])
@@ -132,7 +139,7 @@
             
             fetch("/api/objective/keyresult/checkin?objective_keyresult_id="+objective_keyresult_id+"&offset="+offset+"&limit=5", {
                 method: 'get',
-                headers: self.headers,
+                headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
                 if (data['ok'] == true){
                     if (data['payload'].length > 0){
@@ -141,8 +148,8 @@
                             var msg = `<article class="media">
                                 <div class="media-content">
                                 <div class="content">
-                                    <p>
-                                    <br>`+checkin['name']+`<br>
+                                    <p class="textarea-markdown">
+                                    `+marked(checkin['name'])+`
                                     <small><a>`+checkin['checkin']+`</a></small>
                                     </p>
                                 </div>
@@ -180,3 +187,4 @@
 
 
 document.addEventListener("DOMContentLoaded", Tona.Tabs);
+Tona.SimpleMDE()

@@ -18,9 +18,10 @@ import click
 import os
 import sys
 
-#PACKAGE_PARENT = '../..'
-#SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-#sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+if os.getenv('TONA_ENV') == 'dev':
+    PACKAGE_PARENT = '../..'
+    SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+    sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 from tona.web.main import app as webapp
 from tona.models.base import setup as setup_db, db
@@ -35,8 +36,6 @@ from tona.models.habit_checkin import HabitCheckin
 
 def extract_path(args):
     path = click.get_app_dir('tona')
-    if args is None:
-        return path
 
     def index_path(key_arg):
         index = -1
@@ -46,9 +45,9 @@ def extract_path(args):
                 break
         return args[index]
 
-    if '-s' in args:
+    if args is not None and '-s' in args:
         path = index_path('-s')
-    elif '--storage' in args:
+    elif args is not None and '--storage' in args:
         path = index_path('--storage')
     elif os.environ.get('TONA_STORAGE', False):
         path = os.environ.get('TONA_STORAGE')

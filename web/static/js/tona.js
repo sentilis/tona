@@ -143,6 +143,34 @@ if ( !Date.prototype.toISOString ) {
 
       };
 
+      self.IsSimpleMDE = function (o){
+        if (o.toTextArea !== undefined  & o.isPreviewActive !== undefined ){
+          return true;
+        }
+        return false;
+      }
+      
+      self.QueueSimpleMDE = {};
+
+      self.SimpleMDE = function(){
+        /**
+         * Apply elements with class .textarea-markdown, markdown editor
+         */
+        document.addEventListener("DOMContentLoaded", function(event) {
+          (document.querySelectorAll('.textarea-markdown') || []).forEach(($md)=>{
+              var simplemde = new SimpleMDE({ element: $md, forceSync: true, tabSize: 1});
+              if ($md.onblur !== null ){            
+                  simplemde.codemirror.on("blur", function(event){
+                      $md.onblur(simplemde)            
+                  });
+              }
+              if ($md !== ''){
+                self.QueueSimpleMDE[$md.id] = simplemde;
+              }
+          });
+        });
+      }
+
       return self;
   }
 

@@ -51,7 +51,12 @@
 
         self.AddCheckin = function(event, habit_id){
             var doc =  event.target.parentNode
-            var name = doc.querySelector("#habit-checkin-name");
+            var id = "habit-checkin-name";
+            var name = doc.querySelector("#"+id);
+            var simplemde = Tona.QueueSimpleMDE[id]
+            if ( Tona.IsSimpleMDE(simplemde) ){
+                name.value = simplemde.value();
+            }
             
             if (name.value != "") {
 
@@ -69,6 +74,9 @@
                 }).then(response => response.json()).then(function(data){
                     if (data['ok']){
                         name.value = ""
+                        if ( Tona.IsSimpleMDE(simplemde) ){
+                            Tona.QueueSimpleMDE[id].value("");
+                        }
                         Tona.Notification(event, "Your chekin is added", type="info", interval=1000)
                         self.LoadCheckin(event, habit_id);
                     }else{
@@ -100,7 +108,7 @@
                                 <div class="media-content">
                                 <div class="content">
                                     <p>
-                                    <br>`+checkin['name']+`<br>
+                                    `+marked(checkin['name'])+`
                                     <small><a>`+checkin['checkin']+`</a></small>
                                     </p>
                                 </div>
@@ -135,3 +143,5 @@
     }
 
 })(window);
+
+Tona.SimpleMDE();

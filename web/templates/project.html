@@ -166,7 +166,7 @@
       </div>
       <div class="columns">
         <div class="column">
-          <textarea onblur="TonaProject.EditTask(event,{{task.id}},'description')" class="textarea" placeholder="Description" rows="10">{{ task.description if task.description else ''}}</textarea>
+          <textarea onblur="TonaProject.EditTask(event,{{task.id}},'description')" class="textarea textarea-markdown" placeholder="Description" rows="10">{{ task.description if task.description else ''}}</textarea>
         </div>
       </div>
       <!--div class="columns">

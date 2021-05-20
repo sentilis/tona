@@ -5,12 +5,15 @@
     <link rel="icon" href="{{url_for('static', filename='img/logo70x70.png')}}">
     <link rel="stylesheet" href="https://bulma.io/vendor/fontawesome-free-5.15.2-web/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/simplemde.min.css') }}">
     <meta charset="utf-8">
     <meta name="description" content="Tona - Lightweight tools for personal productivity">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Tona - {% block title %}{% endblock %}</title>
     {% block head %}
+        <script src="{{url_for('static', filename='js/simplemde.min.js')}}"></script>
+        <script src="{{url_for('static', filename='js/marked.min.js')}}"></script>
         <script src="{{url_for('static', filename='js/tona.js')}}"></script>
         <script src="{{url_for('static', filename='js/time_entry.js')}}"></script>
     {% endblock %}
@@ -71,9 +74,10 @@
     <footer class="footer mt-5">
         <div class="content has-text-centered">
           <p>
-            <strong>Tona</strong> by <a href="https://github.com/sentilis">@sentilis</a>. The source code is licensed
-            <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>. Fork
-            <a href="https://github.com/sentilis/tona">OSS</a>.
+            <a href="https://github.com/sentilis/tona"><strong>Tona</strong></a>
+             by <a href="https://github.com/sentilis">@sentilis</a>. The source code is licensed
+            <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>
+            
           </p>
         </div>
     </footer>

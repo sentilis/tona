@@ -25,10 +25,7 @@
                     body: JSON.stringify({
                         "name": txtName.value,
                     }),
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: Tona.SetHeaders(),
                 }).then(response => response.json()).then(function(data){
                     var project_menu_list = document.querySelector("#project-menu-list");
                     var li = document.createElement("li");
@@ -53,15 +50,12 @@
                         "project_id": txtProjectId.value,
                         "name": txtName.value,
                     }),
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: Tona.SetHeaders(),
                 }).then(response => response.json()).then(function(data){
                     var todo_menu_list = document.querySelector("#todo-menu-list");
                     var li = document.createElement("li");
                     var taks = data['payload'];
-                    li.innerHTML = '<a href="/project/'+taks['project_id']['id']+'/task/'+taks['id']+'"><label class="checkbox"><input type="checkbox" class="mr-2">'+txtName.value+'</label></a>';
+                    li.innerHTML = '<a href="/project/'+taks['project_id']['id']+'/task/'+taks['id']+'"><input type="checkbox" class="mr-2"/>'+txtName.value+'</a>';
                     todo_menu_list.append(li);
                     txtName.value = ""
                 }).catch(function(error){
@@ -72,25 +66,29 @@
         };
 
         self.EditTask = function(e, id, field, value=null){
+
             var data = {};
             if (e != null && value == null){
-                data[field]= e.target.value;
+                if (Tona.IsSimpleMDE(e)){
+                    data[field] = e.value();
+                }else{
+                    data[field]= e.target.value;
+                }                
             }else if (e != null && value != null){
                 data[field]= value;
             }
             if (field == 'due') {
                 var utc = new Date(new Date( data[field]).getTime());
                 data[field]= utc.toISOString();
-            }            
+            }
             fetch("/api/project/task/"+id, {
                 method: 'put',
                 body: JSON.stringify(data),
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
+                headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
-                console.log(data)
+                if (!data['ok']){
+                    console.error(data)
+                }
             }).catch(function(error){
                 console.error(error);
             });
@@ -103,9 +101,11 @@
             event
             .currentTarget.style.backgroundColor = 'yellow';
         }
+
         self.onDragOverTask = function (event) {
             event.preventDefault();
         }
+
         self.onDropTask = function (event) {
             var status = event.target.id.split('-')[0];
             if (status == 'todo' || status == 'doing' || status == 'review'){
@@ -120,10 +120,13 @@
                 }
                     
             }
-          }
+        }
+
         return self;
     }
     if (typeof(window.TonaProject) === 'undefined'){
         window.TonaProject = TonaProject();
     }
 })(window);
+
+Tona.SimpleMDE(); 

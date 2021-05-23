@@ -1,11 +1,33 @@
-from flask import render_template, request, jsonify
+# -*- coding: utf-8 -*-
+#    Copyright (C) 2021  The Project TONA Authors
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from flask import Blueprint, render_template, request, jsonify
 import datetime
-from tona.web.main import app
 from tona.models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry, fetch
 from tona.utils import api_response
 
-@app.route("/time-entry")
-@app.route("/time-entry/<id>")
+timer_bp = Blueprint('timer_bp', __name__,
+                        template_folder='templates',
+                        static_folder='static', static_url_path='assets',
+                        url_prefix='/time-entry')
+
+timer_api_bp = Blueprint('timer_api_bp', __name__,
+                        url_prefix='/api/time-entry')
+
+@timer_bp.route("/")
+@timer_bp.route("/<id>")
 def time_entry(id=""):
 
     is_timer = False
@@ -21,13 +43,13 @@ def time_entry(id=""):
         ids = [t.id for t in tt ]
         time_entries = fetch(condition=f" where id in ({str(ids)[1:-1]}) order by stop desc")
 
-    rt = render_template("timer.html",
+    rt = render_template("view.html",
                             is_timer=is_timer,
                             time_entries=time_entries,
                             time_entry=time_entry)
     return rt
 
-@app.route("/api/time-entry/start", methods=['POST'])
+@timer_api_bp.route("/start", methods=['POST'])
 def api_time_entry_start():
     payload = api_response()
     code = 400
@@ -41,11 +63,11 @@ def api_time_entry_start():
         payload['ok'] = True
         code = 200
     except Exception as e:
-        app.logger.error(e)
+        ##app.logger.error(e)
         payload['message'] = str(e)
     return jsonify(payload), code
 
-@app.route("/api/time-entry/stop", methods=['POST'])
+@timer_api_bp.route("/stop", methods=['POST'])
 def api_time_entry_stop():
     payload = api_response()
     code = 400
@@ -55,6 +77,6 @@ def api_time_entry_stop():
         payload['ok'] = True
         code = 200
     except Exception as e:
-        app.logger.error(e)
+        #app.logger.error(e)
         payload['message'] = str(e)
     return jsonify(payload), code

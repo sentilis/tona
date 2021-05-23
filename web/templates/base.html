@@ -15,7 +15,7 @@
         <script src="{{url_for('static', filename='js/simplemde.min.js')}}"></script>
         <script src="{{url_for('static', filename='js/marked.min.js')}}"></script>
         <script src="{{url_for('static', filename='js/tona.js')}}"></script>
-        <script src="{{url_for('static', filename='js/time_entry.js')}}"></script>
+        <script src="/time-entry/assets/timer.js"></script>
     {% endblock %}
 </head>
 
@@ -47,6 +47,8 @@
                     <a class="navbar-item" href="/habit">
                         Habit
                     </a>
+                    {% block navbar_end %}
+                    {% endblock %}
                 </div>
             </div>
         </nav>

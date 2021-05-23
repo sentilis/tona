@@ -17,6 +17,7 @@ from setuptools import setup, Command
 from shutil import rmtree
 import os
 import sys
+import re
 
 class PublishCommand(Command):
 
@@ -59,6 +60,20 @@ with open("requirements.txt", encoding="utf-8") as f:
     for line in f.readlines():
         requirements.append(line.replace('\n', ''))
 
+package_data = []
+package_dir = {}
+packages =[]
+for data in os.walk("."):
+    dir = data[0]
+    if not re.search(".git|.pm|__pycache__|storage", dir):
+        if re.search("static|templates", dir):
+            package_data.append(dir+"/*")
+        else:
+            # TODO: Check is work replace on Windows
+            package = 'tona' if dir == '.' else 'tona' + dir[1:].replace('/','.')
+            package_dir.update({package: dir})
+            packages.append(package)
+
 setup(
     name="tona",
     version="0.1.0",
@@ -68,25 +83,11 @@ setup(
     description="Lightweight tools for personal productivity",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=[
-        'tona',
-        'tona.cmd',
-        'tona.models',
-        'tona.utils',
-        'tona.web',
-        'tona.web.controllers'
-    ],
-    package_dir={
-        'tona': '.',
-        'tona.cmd': 'cmd',
-        'tona.models': 'models',
-        'tona.utils': 'utils',
-        'tona.web': 'web',
-        'tona.web.controllers': 'web/controllers'
-    },
-    package_data={'tona': ['web/static/*/*', 'web/templates/*']},
+    packages=packages,
+    package_dir=package_dir,
+    package_data={'tona': package_data},
     entry_points={
-        "console_scripts": ["tona=tona.cmd.main:main"]
+        "console_scripts": ["tona=tona.main:main"]
     },
     install_requires=requirements,
     license="GPLv3",

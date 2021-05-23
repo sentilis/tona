@@ -31,7 +31,7 @@ case "$1" in
         ;;
     --dev)
         export TONA_ENV=dev
-        exec python3 cmd/main.py webapp -d --storage .storage --time-zone $(cat /etc/timezone)
+        exec python3 main.py webapp -d --storage storage --time-zone $(cat /etc/timezone)
         ;;
     --install)
         python3 setup.py install

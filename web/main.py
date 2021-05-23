@@ -18,6 +18,7 @@ import click
 import os
 from tona.models.time_entry import format_duration
 from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
+from tona.web.timer.timer import timer_bp,timer_api_bp
 
 app = Flask(__name__)
 
@@ -34,10 +35,14 @@ def utility_processor():
 
 @app.route("/")
 def index():
+    app.logger.info("Time Zone: "+ app.config['TZ'])
+    app.logger.info("Storage: "+ app.config['STORAGE'])
     return render_template("index.html")
 
+app.register_blueprint(timer_bp)
+app.register_blueprint(timer_api_bp)
+
 import tona.web.controllers.project
-import tona.web.controllers.time_entry
 import tona.web.controllers.objective
 import tona.web.controllers.habit
 
@@ -56,7 +61,6 @@ def cli_webapp(ctx, time_zone, port, debug, storage):
     app.secret_key = os.urandom(16)
     app.config['STORAGE'] = ctx.obj.get('STORAGE')
     app.config['TZ'] = time_zone
-    print("Time Zone: ", time_zone)
-    print("Storage: ", app.config['STORAGE'])
     app.run(debug=debug, host='0.0.0.0', port=port)
+    
     

@@ -73,13 +73,22 @@ def objective(objective_id="", key_id=0):
         keyresult=keyresult)
     return rt
 
-@app.route("/api/objective", methods=['POST'])
+@app.route("/api/objective", methods=['POST', 'GET'])
 def api_objective():
     payload = api_response()
     code = 400
     try:
-        data = request.json
-        payload['payload'] = create_objective(data.get('name'), data.get('start'), data.get('due'))
+        if request.method == 'POST':
+            data = request.json
+            payload['payload'] = create_objective(data.get('name'), data.get('start'), data.get('due'))
+        else:
+            offset = int(request.args.get('offset', 1))
+            limit = int(request.args.get('limit', 10))
+            rows = Objective.select().order_by(Objective.name.desc()).paginate(offset, limit)
+            data = []
+            for row in rows:
+                data.append(row.to_dict())
+            payload['payload'] = data
         payload['ok'] = True
         code = 200
     except Exception as e:

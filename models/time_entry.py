@@ -15,14 +15,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import peewee
 from tona.models.base import BaseModel, db
-from tona.utils import format_datetime
+from tona.models.project_task import ProjectTask
+from tona.models.habit import Habit
+from tona.models.objective_keyresult import ObjectiveKeyResult
+from tona.utils import format_datetime, FORMAT_DATE
 
 class TimeEntry(BaseModel):
 
     class Meta:
         table_name = 'time_entry'
 
-    name = peewee.CharField()
+    name = peewee.CharField(null=True)
     start = peewee.DateTimeField()  # Datetime must be in ISO-8601 format (eg. "2019-04-16T05:15:32.998Z") UTC
     stop = peewee.DateTimeField(null=True)  # Datetime must be in ISO-8601 format (eg. "2019-04-16T05:15:32.998Z") UTC
     duration = peewee.FloatField(default=0)  # time entry duration in seconds.
@@ -30,6 +33,93 @@ class TimeEntry(BaseModel):
     res_model = peewee.CharField(null=True)  # Model name
     res_id = peewee.IntegerField(null=True)  # Model record id
 
+    @classmethod
+    def apply_filter(cls, time_entries, start_date=None, end_date=None):
+
+        if start_date and end_date is None:
+            start_date = format_datetime(start_date, fmt_in=FORMAT_DATE, obj=True).date()
+            time_entries = time_entries.where(
+                (TimeEntry.start.year >= start_date.year) &
+                (TimeEntry.start.month >= start_date.month) &
+                (TimeEntry.start.day >= start_date.day)
+            )
+        elif start_date is None and end_date:
+            end_date = format_datetime(end_date, fmt_in=FORMAT_DATE, obj=True).date()
+            time_entries = time_entries.where(
+                (TimeEntry.stop.year <= end_date.year) &
+                (TimeEntry.stop.month <= end_date.month) &
+                (TimeEntry.stop.day <= end_date.day)
+            )
+        elif start_date and end_date:
+            start_date = format_datetime(start_date, fmt_in=FORMAT_DATE, obj=True).date()
+            end_date = format_datetime(end_date, fmt_in=FORMAT_DATE, obj=True).date()
+            time_entries = time_entries.where(
+                (TimeEntry.start.year >= start_date.year) &
+                (TimeEntry.start.month >= start_date.month) &
+                (TimeEntry.start.day >= start_date.day),
+                (TimeEntry.stop.year <= end_date.year) &
+                (TimeEntry.stop.month <= end_date.month) &
+                (TimeEntry.stop.day <= end_date.day)
+            )
+
+        return time_entries
+
+    @classmethod
+    def get_by_project(cls, id, start_date, end_date):
+
+        time_entries = TimeEntry.select(
+            TimeEntry.id,
+            TimeEntry.start,
+            TimeEntry.stop,
+            TimeEntry.duration,
+            ProjectTask.name,
+            ProjectTask.project_id
+        ).join(ProjectTask, on = (TimeEntry.res_id == ProjectTask.id)).where(
+            TimeEntry.stop != None,
+            TimeEntry.res_model == 'project_task')
+
+        time_entries = cls.apply_filter(time_entries, start_date, end_date)
+        if id:
+            time_entries = time_entries.where(ProjectTask.project_id == id)
+        return time_entries
+
+    @classmethod
+    def get_by_habit(cls, id, start_date, end_date):
+
+        time_entries = TimeEntry.select(
+            TimeEntry.id,
+            TimeEntry.start,
+            TimeEntry.stop,
+            TimeEntry.duration,
+            Habit.name,
+            Habit.id,
+        ).join(Habit, on = (TimeEntry.res_id == Habit.id)).where(
+            TimeEntry.stop != None,
+            TimeEntry.res_model == 'habit')
+
+        time_entries = cls.apply_filter(time_entries, start_date, end_date)
+        if id:
+            time_entries = time_entries.where(Habit.id == id)
+        return time_entries
+
+    @classmethod
+    def get_by_objective(cls, id, start_date, end_date):
+
+        time_entries = TimeEntry.select(
+            TimeEntry.id,
+            TimeEntry.start,
+            TimeEntry.stop,
+            TimeEntry.duration,
+            ObjectiveKeyResult.name,
+            ObjectiveKeyResult.id,
+            ObjectiveKeyResult.objective_id
+        ).join(ObjectiveKeyResult, on = (TimeEntry.res_id == ObjectiveKeyResult.id)).where(
+            TimeEntry.stop != None,
+            TimeEntry.res_model == 'objective_keyresult')
+        time_entries = cls.apply_filter(time_entries, start_date, end_date)
+        if id:
+            time_entries = time_entries.where(ObjectiveKeyResult.objective_id == id)
+        return time_entries
 
 def create_time_entry(name: str, start: str, stop: str, res_model: str = None, res_id: str = None):
     raise NotImplementedError
@@ -60,9 +150,10 @@ def stop_time_entry(id: int, stop: str):
 
 def active_time_entry():
     try:
-        row = TimeEntry.select().where(TimeEntry.active == True,
-                                    TimeEntry.start != None,
-                                    TimeEntry.stop == None).order_by(TimeEntry.start.desc()).limit(1).get()
+        row = TimeEntry.select().where(
+            TimeEntry.active == True,
+            TimeEntry.start != None,
+            TimeEntry.stop == None).order_by(TimeEntry.start.desc()).limit(1).get()
         return row
     except Exception as e:
         pass
@@ -97,7 +188,7 @@ def fetch(condition=""):
         inner join habit h on t.res_id = h.id
         where t.active = TRUE and t.res_model != '' and t.res_id != 0 and t.res_model = 'habit'
 
-        union 
+        union
 
         select
             t.id,

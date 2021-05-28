@@ -70,13 +70,22 @@ def habit(habit_id=""):
     return rt
 
 
-@app.route("/api/habit", methods=['POST'])
+@app.route("/api/habit", methods=['POST', 'GET'])
 def api_habit():
     payload = api_response()
     code = 400
     try:
-        data = request.json
-        payload['payload'] = create_habit(**data)
+        if request.method == 'POST':
+            data = request.json
+            payload['payload'] = create_habit(**data)
+        else:
+            offset = int(request.args.get('offset', 1))
+            limit = int(request.args.get('limit', 10))
+            rows = Habit.select().order_by(Habit.name.desc()).paginate(offset, limit)
+            data = []
+            for row in rows:
+                data.append(row.to_dict())
+            payload['payload'] = data
         payload['ok'] = True
         code = 200
     except Exception as e:

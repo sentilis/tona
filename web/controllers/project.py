@@ -124,13 +124,22 @@ def project(project_id="", task_id=0):
         task=task)
     return rt
 
-@app.route("/api/project", methods=['POST'])
+@app.route("/api/project", methods=['POST', 'GET'])
 def api_project():
     payload = api_response()
     code = 400
     try:
-        data = request.json
-        payload['payload'] = create_project(data.get('name'))
+        if request.method == 'POST':
+            data = request.json
+            payload['payload'] = create_project(data.get('name'))
+        else:
+            offset = int(request.args.get('offset', 1))
+            limit = int(request.args.get('limit', 10))
+            rows = Project.select().order_by(Project.name.desc()).paginate(offset, limit)
+            data = []
+            for row in rows:
+                data.append(row.to_dict())
+            payload['payload'] = data
         payload['ok'] = True
         code = 200
     except Exception as e:

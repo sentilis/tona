@@ -42,6 +42,17 @@ if ( !Date.prototype.toISOString ) {
   function Tona (){
       var self = {};
 
+      self.URLQuery = function(params){
+        const esc = encodeURIComponent;
+        var query = ""
+        for (const param in params){
+          if (params[param]){
+            query += `${esc(param)}=${esc(params[param])}&`
+          }
+        } 
+        return query
+      }
+
       self.Notification = function(e, msg=null, type="danger", interval=5000){
         classColor = "is-danger"
         switch(type){
@@ -171,6 +182,27 @@ if ( !Date.prototype.toISOString ) {
         });
       }
 
+      self.Dropdown = function (){
+        document.addEventListener("DOMContentLoaded", function(event) {
+          (document.querySelectorAll('.dropdown') || []).forEach((dropdown)=>{
+            dropdown.addEventListener('click', (e)=>{
+              var isActive = false;
+              if (dropdown.classList && dropdown.classList.length > 0){
+                  for (var a = 0  ;  a < dropdown.classList.length; a++){
+                      if (dropdown.classList[a] == 'is-active'){
+                          isActive = true;
+                      }
+                  }
+              }
+              if (isActive){
+                  dropdown.classList.remove("is-active");
+              }else{
+                dropdown.classList.add("is-active");
+              }
+            });
+          }); 
+        });
+      }
       return self;
   }
 
@@ -178,3 +210,8 @@ if ( !Date.prototype.toISOString ) {
     window.Tona = Tona();
   }
 })(window);
+
+/** Auto apply styles | accions */
+( function() {
+  Tona.Dropdown();
+}() );

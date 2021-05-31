@@ -122,6 +122,21 @@ class TimeEntry(BaseModel):
         return time_entries
 
     @classmethod
+    def get_by_other(cls, id, start_date, end_date):
+        time_entries = TimeEntry.select(
+            TimeEntry.id,
+            TimeEntry.start,
+            TimeEntry.stop,
+            TimeEntry.duration,
+            TimeEntry.name,
+        ).where(
+            TimeEntry.stop != None,
+            TimeEntry.res_model == None, 
+            TimeEntry.res_id == None)
+        time_entries = cls.apply_filter(time_entries, start_date, end_date)
+        return time_entries
+
+    @classmethod
     def running(cls):
         try:
             row = TimeEntry.select().where(

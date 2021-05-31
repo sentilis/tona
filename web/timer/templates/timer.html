@@ -22,6 +22,7 @@
         Analyze
       </p>
       <ul class="menu-list">
+        <li><a class="{{ 'is-active' if whoami == 'other' else '' }}" href="/time-entry/analyze/other">Other</a></li>
         <li><a class="{{ 'is-active' if whoami == 'project' else '' }}" href="/time-entry/analyze/project">Project</a></li>
         <li><a class="{{ 'is-active' if whoami == 'objective' else '' }}" href="/time-entry/analyze/objective">Objective</a></li>
         <li><a class="{{ 'is-active' if whoami == 'habit' else '' }}" href="/time-entry/analyze/habit">Habit</a></li>

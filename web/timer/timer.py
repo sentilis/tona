@@ -73,9 +73,10 @@ def api_time_entry():
             rows = TimeEntry.get_by_objective(id, start_date, end_date)
         elif ttype == 'habit':
             rows = TimeEntry.get_by_habit(id, start_date, end_date)
-
+        elif ttype == 'other':
+            rows = TimeEntry.get_by_other(id, start_date, end_date)
         for row in rows:
-            id = row.id
+            id = 0
             name = row.name
             if ttype == 'project':
                 id = row.projecttask.project_id.id
@@ -94,6 +95,11 @@ def api_time_entry():
                     type_data = Objective.exists(id).to_dict()
                 elif ttype == 'habit':
                     type_data = Habit.exists(id).to_dict()
+                elif ttype == 'other':
+                    type_data = {
+                        'id': 0,
+                        'name': 'Any time entry',
+                    }
                 data[id] = {
                     'time_entries': [],
                     "duration": 0,

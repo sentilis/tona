@@ -15,11 +15,12 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from flask import Blueprint, render_template, request, jsonify
 import datetime
-from tona.models.time_entry import TimeEntry, active_time_entry, start_time_entry, stop_time_entry, fetch
+from tona.models.time_entry import TimeEntry, start_time_entry, stop_time_entry, fetch
 from tona.utils import api_response
 from tona.models.project import Project
 from tona.models.objective import Objective
 from tona.models.habit import Habit
+from tona.utils import APIResponse
 
 timer_bp = Blueprint('timer_bp', __name__,
                         template_folder='templates',
@@ -30,35 +31,28 @@ timer_api_bp = Blueprint('timer_api_bp', __name__, url_prefix='/api/time-entry')
 
 @timer_bp.route("/")
 def time_entry():
-
-    is_timer = False
     time_entries = []
-    time_entry = None
-
-    is_timer = True
-    now = datetime.datetime.utcnow()
+    now = datetime.date.today()
     tt = TimeEntry.select().where(
         (TimeEntry.start.year == now.year) & (TimeEntry.start.month == now.month) & (TimeEntry.start.day == now.day),
         TimeEntry.active == True, TimeEntry.stop != None).order_by(TimeEntry.stop.desc())
-    time_entry = active_time_entry()
     ids = [t.id for t in tt ]
     time_entries = fetch(condition=f" where id in ({str(ids)[1:-1]}) order by stop desc")
 
     rt = render_template("timer.html",
-                            is_timer=is_timer,
-                            time_entries=time_entries,
-                            time_entry=time_entry)
+                            whoami='timer',
+                            time_entries=time_entries)
     return rt
 
 @timer_bp.route("/analyze/<name>")
 def time_entry_analyze(name):
-    rt = render_template("timer_analyze.html", whoami=name)
-    return rt
+    return render_template("timer_analyze.html", whoami=name)
+
 
 @timer_bp.route("/settings/<name>")
-def time_entry_settings(name=""):
-    rt = render_template("timer.html")
-    return rt
+def time_entry_settings(name):
+    return render_template("timer.html", whoami=name)
+
 
 @timer_api_bp.route("/analyze", methods=['GET'])
 def api_time_entry():
@@ -123,6 +117,23 @@ def api_time_entry():
         print(e)
         payload['message'] = str(e)
     return jsonify(payload), code
+
+@timer_api_bp.route("/running", methods=['GET'])
+def api_time_entry_running():
+    res = APIResponse()
+    res.code = 404
+    try:
+        time_entry = TimeEntry.running()
+        if time_entry:
+            res.payload = time_entry.to_dict()
+            data = fetch(condition=f" where id = ({res.payload.get('id')})")
+            if len(data):
+                res.payload.update({'name': data[0][1]})
+            res.ok = True
+            res.code = 200
+    except Exception as e:
+        res.message = str(e)
+    return jsonify(res.to_dict()), res.code
 
 @timer_api_bp.route("/start", methods=['POST'])
 def api_time_entry_start():

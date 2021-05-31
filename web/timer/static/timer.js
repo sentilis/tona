@@ -120,6 +120,9 @@
                 }else if (action == "stop"){
                     self.Stop();
                     self.ToggleButton()
+                    if (txtName !== null){
+                        txtName.value = "";
+                    }
                 }
             }).catch(function(error){
                 console.error(error);
@@ -159,6 +162,7 @@
 })(window);
 
 document.addEventListener("DOMContentLoaded", function(event) {
+    
     (document.querySelectorAll('.widget-time-entry') || []).forEach(($timeEntry)=>{
         var start = $timeEntry.querySelector("a.start-time-entry");
         var stop = $timeEntry.querySelector("a.stop-time-entry");
@@ -170,5 +174,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
         stop.addEventListener('click', self.TonaTimeEntry.StopTimeEntry);  
         
     });
-   
+
+    var timer_addons = document.querySelector("#timer-addons");
+    if (timer_addons !== undefined){
+        fetch("/api/time-entry/running", {
+            method: 'get',
+            headers: Tona.SetHeaders(),
+        }).then(response => response.json()).then(function(data){
+            if (data['ok']){
+                var payload = data['payload']
+                TonaTimeEntry.StartTimeEntry(payload['start']);
+                var time_entry_name = timer_addons.querySelector("#time-entry-name")
+                if ( time_entry_name !== undefined){
+                    time_entry_name.value = payload['name'];
+                }
+            }
+        }).catch(function(error){
+            console.error(error);
+        });
+    }
+
 });

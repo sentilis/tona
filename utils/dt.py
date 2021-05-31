@@ -52,3 +52,21 @@ def convert_datetime(dt, tz_in=pytz.utc, tz_out=pytz.utc,
     if obj:
         return dt
     return dt.strftime(fmt_out)
+
+
+def format_time_duration(seconds: float, format: str = "clock"):
+
+    minutes = int(seconds / 60)
+    hours  = int(minutes / 60)
+    seconds = int(seconds - minutes * 60)
+    minutes = int(minutes - hours * 60)
+
+    def pad(v):
+        v = str(v)
+        if len(v) == 1:
+            return '0' + v
+        return v
+    d = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds)
+    if format == 'human':
+        d = pad(hours) + "H" + pad(minutes) + "M" + pad(seconds) + "S"
+    return d

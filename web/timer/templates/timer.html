@@ -8,12 +8,6 @@
 
 {% block content %}
 
-{% set time_entry_start = "" %}
-{% set time_entry_name = "" %}
-{% if time_entry %}
-  {% set time_entry_start = time_entry.start %}
-  {% set time_entry_name = time_entry.name %}
-{% endif %}
 <div class="columns is-mobile">
   
   <div class="column is-one-fifth">
@@ -22,42 +16,35 @@
         Track
       </p>
       <ul class="menu-list">
-        <li><a href="/time-entry">Timer</a></li>
+        <li><a href="/time-entry" class="{{ 'is-active' if whoami == 'timer' else '' }}">Timer</a></li>
       </ul>
       <p class="menu-label">
         Analyze
       </p>
       <ul class="menu-list">
-        <li><a href="/time-entry/analyze/project">Project</a></li>
-        <li><a href="/time-entry/analyze/objective">Objective</a></li>
-        <li><a href="/time-entry/analyze/habit">Habit</a></li>
+        <li><a class="{{ 'is-active' if whoami == 'project' else '' }}" href="/time-entry/analyze/project">Project</a></li>
+        <li><a class="{{ 'is-active' if whoami == 'objective' else '' }}" href="/time-entry/analyze/objective">Objective</a></li>
+        <li><a class="{{ 'is-active' if whoami == 'habit' else '' }}" href="/time-entry/analyze/habit">Habit</a></li>
       </ul>
-      <p class="menu-label">
+      <!--p class="menu-label">
         Settings
       </p>
       <ul class="menu-list">
         <li><a href="/time-entry/settings/pomodoro">Pomodoro</a></li>
-      </ul>
+      </ul-->
     </aside>
   </div>
   
   <div class="column">
-    {% if is_timer %}
+    {% if whoami == 'timer' %}
       <div class="columns">
         <div class="column">
-          <div class="field has-addons">
+          <div id="timer-addons" class="field has-addons">
             <p class="control">
               <a id="time-entry-duration" class="button">00:00:00</a>
             </p>
             <p class="control is-expanded">
-              <input id="time-entry-name" value="{{time_entry_name}}" class="input is-primary" type="text" placeholder="What are you working on?">
-              {% if time_entry  %}
-              <script type="text/javascript">
-                document.addEventListener("DOMContentLoaded", function(event) {
-                  TonaTimeEntry.StartTimeEntry("{{time_entry_start}}");
-                });
-              </script>    
-              {% endif %}
+              <input id="time-entry-name" value="" class="input is-primary" type="text" placeholder="What are you working on?">
             </p>
             <p class="control">
               <a onclick="TonaTimeEntry.StartTimeEntry()" id="start-time-entry" class="button is-primary" title="Start time entry">
@@ -75,15 +62,16 @@
         </div>
       </div>
       <aside class="menu">
-        {% for row in time_entries %}
-          <!--p class="menu-label">
-          </p-->
+          <p class="menu-label">
+            Today
+          </p>
           <ul class="menu-list">
+            {% for row in time_entries %}
               <li >
                 <a href="/time-entry/{{row[0]}}">
                   {{row[1]}}
                   <span class="is-pulled-right">
-                    {{format_duration(row[4])}}
+                    {{format_time_duration(row[4])}}
                   </span>
                   <span class="is-pulled-right pr-6">
                     {{convert_datetime(row[2], tz_out=TZ, fmt_in=FORMAT_DATE+' '+FORMAT_TIME+'.%f', fmt_out=FORMAT_TIME)}} -
@@ -91,13 +79,12 @@
                   </span>
                 </a>
             </li>
+            {% endfor %}
           </ul>
-          {% endfor %}
       </aside>
     {% endif %}
 
     {% block column2 %}
-      
     {% endblock %}
   </div>
   
@@ -107,7 +94,5 @@
   </div>
   
 </div>
-
-
 
 {% endblock %}

@@ -74,6 +74,8 @@ class BaseModel(peewee.Model):
                 tmp.update({field: str(data.get(field))})
             if allowed.get(field) == 'int' and data.get(field, None):
                 tmp.update({field: int(data.get(field))})
+            if allowed.get(field) == 'float' and data.get(field, None):
+                tmp.update({field: float(data.get(field))})
             if allowed.get(field) == 'date' and data.get(field, None):
                 tmp.update({field: format_datetime(data.get(field), fmt_in=FORMAT_DATE, obj=True).date()})
             if allowed.get(field) == 'datetime' and data.get(field, None):

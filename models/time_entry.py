@@ -121,11 +121,20 @@ class TimeEntry(BaseModel):
             time_entries = time_entries.where(ObjectiveKeyResult.objective_id == id)
         return time_entries
 
-def create_time_entry(name: str, start: str, stop: str, res_model: str = None, res_id: str = None):
-    raise NotImplementedError
+    @classmethod
+    def running(cls):
+        try:
+            row = TimeEntry.select().where(
+                TimeEntry.active == True,
+                TimeEntry.start != None,
+                TimeEntry.stop == None).order_by(TimeEntry.start.desc()).limit(1).get()
+            return row
+        except Exception as e:
+            pass
+        return None
 
 def start_time_entry(name: str, start: str, res_model: str = None, res_id: str = None):
-    if active_time_entry() is not None:
+    if TimeEntry.running() is not None:
         raise Exception("You have an active time entry")
     data = {"name": name, 'start': format_datetime(start, obj=True) }
     if res_model and res_id:
@@ -136,7 +145,7 @@ def start_time_entry(name: str, start: str, res_model: str = None, res_id: str =
 
 def stop_time_entry(id: int, stop: str):
     if id == 0:
-        row = active_time_entry()
+        row = TimeEntry.running()
         if row is None:
             raise Exception("Haven't an active time entry")
         id = row.id
@@ -147,34 +156,6 @@ def stop_time_entry(id: int, stop: str):
     data = {TimeEntry.stop: stoptmp, TimeEntry.duration: duration}
     TimeEntry.update(data).where(TimeEntry.id == id).execute()
     return TimeEntry.check(id)[0].to_dict()
-
-def active_time_entry():
-    try:
-        row = TimeEntry.select().where(
-            TimeEntry.active == True,
-            TimeEntry.start != None,
-            TimeEntry.stop == None).order_by(TimeEntry.start.desc()).limit(1).get()
-        return row
-    except Exception as e:
-        pass
-    return None
-
-def format_duration(seconds: float, format: str = "clock"):
-
-    minutes = int(seconds / 60)
-    hours  = int(minutes / 60)
-    seconds = int(seconds - minutes * 60)
-    minutes = int(minutes - hours * 60)
-
-    def pad(v):
-        v = str(v)
-        if len(v) == 1:
-            return '0' + v
-        return v
-    d = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds)
-    if format == 'human':
-        d = pad(hours) + "H" + pad(minutes) + "M" + pad(seconds) + "S"
-    return d
 
 def fetch(condition=""):
     sql = f"""
@@ -192,7 +173,7 @@ def fetch(condition=""):
 
         select
             t.id,
-            ( 'Objective Key Result / ' || o.name || ' / '|| ok.name) as name,
+            ( 'Objective / ' || o.name || ' / '|| ok.name) as name,
             t.start, t.stop , t.duration
         from time_entry t
         inner join objective_keyresult ok on t.res_id = ok.id
@@ -203,7 +184,7 @@ def fetch(condition=""):
 
         select
             t.id,
-            ( 'Project Task / ' || p.name || ' / '|| pt.name) as name,
+            ( 'Project / ' || p.name || ' / '|| pt.name) as name,
             t.start, t.stop , t.duration
         from time_entry t
         inner join project_task pt on t.res_id = pt.id

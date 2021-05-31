@@ -114,3 +114,7 @@
     }
     
 })(window);
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    TimerAnalyze.Load()
+});

@@ -16,8 +16,7 @@
 from flask import Flask, render_template
 import click
 import os
-from tona.models.time_entry import format_duration
-from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME
+from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME, format_time_duration
 from tona.web.timer.timer import timer_bp,timer_api_bp
 
 app = Flask(__name__)
@@ -29,7 +28,7 @@ def utility_processor():
         FORMAT_TIME=FORMAT_TIME,
         FORMAT_DATETIME=FORMAT_DATETIME,
         TZ=app.config['TZ'],
-        format_duration=format_duration,
+        format_time_duration=format_time_duration,
         convert_datetime=convert_datetime)
     return utility
 

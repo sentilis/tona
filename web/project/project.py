@@ -14,18 +14,24 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import render_template, request, jsonify, flash
+from flask import render_template, request, jsonify, flash, Blueprint
 import datetime
-from tona.web.main import app
+from tona.web.app import app
 from tona.models.project import create_project, Project
 from tona.models.project_task import create_project_task, edit_project_task, ProjectTask
 from tona.utils import api_response, convert_datetime
 
+project_bp = Blueprint('project_bp', __name__,
+                        template_folder='templates',
+                        static_folder='static', static_url_path='assets',
+                        url_prefix='/project')
 
-@app.route("/project")
-@app.route("/project/<project_id>")
-@app.route("/project/<project_id>/task")
-@app.route("/project/<project_id>/task/<int:task_id>")
+project_api_bp = Blueprint('project_api_bp', __name__, url_prefix='/api/project')
+
+@project_bp.route("/")
+@project_bp.route("/<project_id>")
+@project_bp.route("/<project_id>/task")
+@project_bp.route("/<project_id>/task/<int:task_id>")
 def project(project_id="", task_id=0):
 
     is_today = False
@@ -124,7 +130,7 @@ def project(project_id="", task_id=0):
         task=task)
     return rt
 
-@app.route("/api/project", methods=['POST', 'GET'])
+@project_api_bp.route("/", methods=['POST', 'GET'])
 def api_project():
     payload = api_response()
     code = 400
@@ -143,12 +149,12 @@ def api_project():
         payload['ok'] = True
         code = 200
     except Exception as e:
-        app.logger.error(e)
+        # app.logger.error(e)
         payload['message'] = str(e)
     return jsonify(payload), code
 
-@app.route("/api/project/task", methods=['POST'])
-@app.route("/api/project/task/<int:id>", methods=['PUT'])
+@project_api_bp.route("/task", methods=['POST'])
+@project_api_bp.route("/task/<int:id>", methods=['PUT'])
 def api_project_task(id=0):
     payload = api_response()
     code = 400
@@ -167,6 +173,6 @@ def api_project_task(id=0):
         payload['ok'] = True
         code = 200
     except Exception as e:
-        app.logger.error(e)
+        # app.logger.error(e)
         payload['message'] = str(e)
     return jsonify(payload), code

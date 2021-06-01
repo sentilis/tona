@@ -15,7 +15,7 @@
 */
 
 (function(window){
-    function TonaProject (){
+    function Project (){
         var self = {};
         self.Add = function (){
             var txtName = document.querySelector(".modal #project-name");
@@ -124,8 +124,8 @@
 
         return self;
     }
-    if (typeof(window.TonaProject) === 'undefined'){
-        window.TonaProject = TonaProject();
+    if (typeof(window.Project) === 'undefined'){
+        window.Project = Project();
     }
 })(window);
 

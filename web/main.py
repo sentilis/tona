@@ -13,13 +13,14 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from flask import Flask, render_template
+from flask import render_template
 import click
 import os
+from tona.web.app import app
 from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME, format_time_duration
-from tona.web.timer.timer import timer_bp,timer_api_bp
+from tona.web.timer.timer import timer_bp, timer_api_bp
+from tona.web.project.project import project_bp, project_api_bp
 
-app = Flask(__name__)
 
 @app.context_processor
 def utility_processor():
@@ -38,10 +39,14 @@ def index():
     app.logger.info("Storage: "+ app.config['STORAGE'])
     return render_template("index.html")
 
+
 app.register_blueprint(timer_bp)
 app.register_blueprint(timer_api_bp)
 
-import tona.web.controllers.project
+app.register_blueprint(project_bp)
+app.register_blueprint(project_api_bp)
+
+
 import tona.web.controllers.objective
 import tona.web.controllers.habit
 
@@ -61,5 +66,3 @@ def cli_webapp(ctx, time_zone, port, debug, storage):
     app.config['STORAGE'] = ctx.obj.get('STORAGE')
     app.config['TZ'] = time_zone
     app.run(debug=debug, host='0.0.0.0', port=port)
-    
-    

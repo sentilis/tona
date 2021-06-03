@@ -16,7 +16,6 @@
 import peewee
 from tona.models.base import BaseModel
 from tona.models.project import Project
-from tona.utils import format_datetime
 
 class ProjectTask(BaseModel):
 
@@ -31,29 +30,23 @@ class ProjectTask(BaseModel):
     due = peewee.DateTimeField(null=True)
 
     status = peewee.CharField(default='todo')  # todo, doing ,review, done
-    priority = peewee.IntegerField(default=1)  # 1-high 2-medium 3-low
+    priority = peewee.IntegerField(default=0)  # 1-high 2-medium 3-low
 
+    @classmethod
+    def edit(cls, id, **kwargs):
+        data = cls.prepare_fields(kwargs, only=['name', 'description', 'status', 'due', 'priority'])
+        if 'due' in kwargs.keys():
+            due = kwargs.pop('due')
+            if not due:
+                data['due'] = None
+        cls.update(data).where(cls.id == id).execute()
+        return super(ProjectTask, cls).edit(id, **kwargs)
 
-def create_project_task(project_id: int, name: str):
-    Project.check(project_id)
-    data = {"name": name, "project_id": project_id}
-    id = ProjectTask.create(**data)
-    return id.to_dict()
-
-def edit_project_task(id: int, name: str = None, description: str = None, status: str = None, due: str = None):
-    ProjectTask.check(id)
-    data = {}
-    if name is not None:
-        data.update({ProjectTask.name: name})
-    if description is not None:
-        data.update({ProjectTask.description: description})
-    if status is not None:
-        data.update({ProjectTask.status: status})
-    if due is not None:
-        data.update({ProjectTask.due: format_datetime(due, obj=True)})
-    if not len(data.keys()):
-        raise Exception("ProjectTask: is requried min 1 for update")
-
-    ProjectTask.update(data).where(ProjectTask.id == id).execute()
-    data = ProjectTask.check(id)[0]
-    return data.to_dict()
+    @classmethod
+    def add(cls, **kwargs):
+        data = cls.prepare_fields(kwargs, only=['name', 'project_id'], required=True)
+        Project.exists(data.get("project_id"))
+        data_opt = cls.prepare_fields(kwargs, only=['description', 'status', 'due', 'priority'])
+        data = {**data, **data_opt}
+        id = cls.create(**data)
+        return id.to_dict()

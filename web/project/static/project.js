@@ -77,9 +77,16 @@
             }else if (e != null && value != null){
                 data[field]= value;
             }
+
             if (field == 'due') {
                 var utc = new Date(new Date( data[field]).getTime());
                 data[field]= utc.toISOString();
+            }else if (field == 'clear-due'){
+                data["due"] = null; 
+                var task_due = document.querySelector("#task-due");
+                if (task_due !== undefined){
+                    task_due.value = ""
+                }
             }
             fetch("/api/project/task/"+id, {
                 method: 'put',

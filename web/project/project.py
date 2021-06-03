@@ -18,7 +18,7 @@ from flask import render_template, request, jsonify, flash, Blueprint
 import datetime
 from tona.web.app import app
 from tona.models.project import create_project, Project
-from tona.models.project_task import create_project_task, edit_project_task, ProjectTask
+from tona.models.project_task import ProjectTask
 from tona.utils import api_response, convert_datetime
 
 project_bp = Blueprint('project_bp', __name__,
@@ -161,18 +161,15 @@ def api_project_task(id=0):
     try:
         data = request.json
         if request.method == 'POST':
-            payload['payload'] = create_project_task(data.get('project_id', 0), data.get('name'))
+            payload['payload'] = ProjectTask.add(**data)
         else:
             if id:
-                payload['payload'] = edit_project_task(id, name=data.get('name', None),
-                                                        description=data.get('description', None),
-                                                        status=data.get('status', None),
-                                                        due=data.get('due', None))
+                payload['payload'] = ProjectTask.edit(id, **data)
             else:
                 raise Exception("For Edit is required ID")
         payload['ok'] = True
         code = 200
     except Exception as e:
-        # app.logger.error(e)
+        app.logger.error(e)
         payload['message'] = str(e)
     return jsonify(payload), code

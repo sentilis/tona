@@ -1,0 +1,21 @@
+li > a > input[type=checkbox].priority-3 {
+    outline:2px solid #f03a5f; 
+    outline-offset: -2px;
+}
+li > a > input[type=checkbox].priority-2 {
+    outline:2px solid #ffdb4a; 
+    outline-offset: -2px;
+}
+li > a > input[type=checkbox].priority-1 {
+    outline:2px solid #2793da; 
+    outline-offset: -2px;
+}
+.select.priority-3 select{
+    border-color:#f14668
+}
+.select.priority-2 select{
+    border-color:#ffdd57
+}
+.select.priority-1 select{
+    border-color:#3298dc
+}

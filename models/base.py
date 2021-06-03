@@ -62,24 +62,55 @@ class BaseModel(peewee.Model):
         return model_to_dict(self, recurse=True, exclude=['active', 'created_at', 'edited_at'])
 
     @classmethod
-    def prepare_fields(cls, data: dict, only: list = [], exclude: list = [], allowed: dict = {}):
+    def prepare_fields(cls, data: dict, only: list = [], exclude: list = [], allowed: dict = {}, required=False):
+
         tmp = {}
+        if not allowed.keys():
+            for column in cls._meta.columns.keys():
+                allowed.update({column: cls._meta.columns[column].field_type})
         fields = allowed.keys()
         if len(only):
             fields = only
         for field in fields:
             if len(exclude) and field in exclude:
                 continue
-            if allowed.get(field) == 'str' and data.get(field, None):
+            if allowed.get(field) in ['str', 'VARCHAR', 'TEXT'] and data.get(field, None):
                 tmp.update({field: str(data.get(field))})
-            if allowed.get(field) == 'int' and data.get(field, None):
+            elif allowed.get(field) in ['int', 'INT', 'AUTO'] and data.get(field, None):
                 tmp.update({field: int(data.get(field))})
-            if allowed.get(field) == 'float' and data.get(field, None):
+            elif allowed.get(field) in ['float'] and data.get(field, None):
                 tmp.update({field: float(data.get(field))})
-            if allowed.get(field) == 'date' and data.get(field, None):
+            elif allowed.get(field) in ['date', 'DATE'] and data.get(field, None):
                 tmp.update({field: format_datetime(data.get(field), fmt_in=FORMAT_DATE, obj=True).date()})
-            if allowed.get(field) == 'datetime' and data.get(field, None):
+            elif allowed.get(field) in ['datetime', 'DATETIME'] and data.get(field, None):
                 tmp.update({field: format_datetime(data.get(field), obj=True)})
-        if not len(tmp.keys()):
-            raise Exception(f"{cls.__name__}: Fields allowed: {str(fields)} and exclude: {str(exclude)}")
+            elif allowed.get(field) in ['bool', 'BOOL'] and data.get(field, None):
+                tmp.update({field: bool(data.get(field))})
+        if required:
+            requireds = []
+            for field in only:
+                if field not in tmp.keys():
+                    requireds.append(field)
+            if len(requireds):
+                raise Exception(f"{cls.__name__}: Fields required: {str(only)} and missing: {str(requireds)}")
         return tmp
+
+    @classmethod
+    def add(cls, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
+    def edit(cls, id, **kwargs):
+        return cls.exists(id).to_dict()
+
+    @classmethod
+    def archive(cls, id=None):
+        if id:
+            cls.update({"active": False}).where(cls.id == id)
+        return cls.update({"active": False}).execute()
+
+    @classmethod
+    def unarchive(cls, id=None):
+        if id:
+            cls.update({"active": True}).where(cls.id == id)
+        return cls.update({"active": True}).execute()

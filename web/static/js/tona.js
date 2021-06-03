@@ -169,7 +169,7 @@ if ( !Date.prototype.toISOString ) {
          */
         document.addEventListener("DOMContentLoaded", function(event) {
           (document.querySelectorAll('.textarea-markdown') || []).forEach(($md)=>{
-              var simplemde = new SimpleMDE({ element: $md, forceSync: true, tabSize: 1});
+              var simplemde = new SimpleMDE({ element: $md, forceSync: true, tabSize: 1, spellChecker: false});
               if ($md.onblur !== null ){            
                   simplemde.codemirror.on("blur", function(event){
                       $md.onblur(simplemde)            

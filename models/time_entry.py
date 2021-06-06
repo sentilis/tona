@@ -156,30 +156,30 @@ class TimeEntry(BaseModel):
             cls.delete().where(cls.id == id).execute()
         return True
 
+    @classmethod
+    def start_timer(cls, **kwargs):
+        if TimeEntry.running() is not None:
+            raise Exception("You have an active time entry")
+        data = cls.prepare_fields(kwargs, only=['name', 'res_id', 'start', 'res_model'])
+        if 'res_id' in data.keys() and 'res_model' in data.keys() and 'name' not in data.keys():
+            data.update(dict(name=''))
+        return TimeEntry.create(**data)
 
-def start_time_entry(name: str, start: str, res_model: str = None, res_id: str = None):
-    if TimeEntry.running() is not None:
-        raise Exception("You have an active time entry")
-    data = {"name": name, 'start': format_datetime(start, obj=True) }
-    if res_model and res_id:
-        res_id = int(res_id)
-        data.update({"res_model": res_model, "res_id": res_id})
-    id = TimeEntry.create(**data)
-    return id.to_dict()
-
-def stop_time_entry(id: int, stop: str):
-    if id == 0:
-        row = TimeEntry.running()
-        if row is None:
-            raise Exception("Haven't an active time entry")
-        id = row.id
-    else:
-        row = TimeEntry.check(id)[0]
-    stoptmp = format_datetime(stop, obj=True)
-    duration = (stoptmp - row.start).total_seconds()
-    data = {TimeEntry.stop: stoptmp, TimeEntry.duration: duration}
-    TimeEntry.update(data).where(TimeEntry.id == id).execute()
-    return TimeEntry.check(id)[0].to_dict()
+    @classmethod
+    def stop_timer(cls, id, **kwargs):
+        if id == 0:
+            row = cls.running()
+            if row is None:
+                raise Exception("Haven't an active time entry")
+            id = row.id
+        else:
+            row = cls.get(id)
+        data = cls.prepare_fields(kwargs, only=['stop'], required=True)
+        stoptmp = data.get('stop')
+        duration = (stoptmp - row.start).total_seconds()
+        data.update({"duration": duration})
+        cls.update(data).where(cls.id == id).execute()
+        return cls.get(id)
 
 def fetch(condition=""):
     sql = f"""

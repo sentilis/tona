@@ -95,7 +95,6 @@
         };
 
         self.StartTimeEntry = function(event, start=Date.now()){
-            console.log(event)
             var widgetTimeEntry = event.target?.parentNode?.parentNode?.parentNode;
             let data = {};
             if (typeof(widgetTimeEntry?.dataset?.resModel)=== "string" && typeof(widgetTimeEntry?.dataset?.resId)=== "string"){
@@ -107,11 +106,8 @@
                 txtName = document.getElementById("time-entry-name");
                 if (txtName !== null){
                     data['name'] = txtName.value;
-                }else{
-                    return;
                 }                
             }          
-            
             txtDuration = document.getElementById("time-entry-duration");
             menuDuration = document.querySelector("#menu-timer .time-entry-duration");
 
@@ -121,11 +117,12 @@
                 self.ToggleButton()
                 return;
             }
-
-            startTime = start;
-            startDateTime = new Date(startTime);
-            data['start'] = startDateTime.toISOString();
-            self.request("start", data)
+            if ( (('res_id' in data) && ('res_model' in data)) || ('name' in data)){
+                startTime = start;
+                startDateTime = new Date(startTime);
+                data['start'] = startDateTime.toISOString();
+                self.request("start", data)
+            }
         };
 
         self.StopTimeEntry = function(event){

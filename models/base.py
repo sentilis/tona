@@ -57,9 +57,9 @@ class BaseModel(peewee.Model):
     def prepare_fields(cls, data: dict, only: list = [], exclude: list = [], allowed: dict = {}, required=False):
 
         tmp = {}
-        if not allowed.keys():
-            for column in cls._meta.columns.keys():
-                allowed.update({column: cls._meta.columns[column].field_type})
+        allowed = {}
+        for column in cls._meta.columns.keys():
+            allowed.update({column: cls._meta.columns[column].field_type})
         fields = allowed.keys()
         if len(only):
             fields = only

@@ -15,12 +15,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from flask import Blueprint, render_template, request, jsonify
 import datetime
-from tona.models.time_entry import TimeEntry, start_time_entry, stop_time_entry, fetch
+from tona.models.time_entry import TimeEntry, fetch
 from tona.utils import api_response
 from tona.models.project import Project
 from tona.models.objective import Objective
 from tona.models.habit import Habit
 from tona.utils import HTTPResponse
+from tona.web.app  import app
 
 timer_bp = Blueprint('timer_bp', __name__,
                         template_folder='templates',
@@ -143,30 +144,28 @@ def api_time_entry_running():
 
 @timer_api_bp.route("/start", methods=['POST'])
 def api_time_entry_start():
-    payload = api_response()
-    code = 400
+    res = HTTPResponse()
+    res.code = 400
     try:
         data = request.json
-        payload['payload'] = start_time_entry(
-            data.get('name', ''),
-            data.get('start'),
-            res_model=data.get('res_model', None),
-            res_id=data.get('res_id', None))
-        payload['ok'] = True
-        code = 200
+        res.payload = TimeEntry.start_timer(**data).to_dict()
+        res.ok = True
+        res.code = 200
     except Exception as e:
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        app.logger.error(e)
+        res.message = str(e)
+    return jsonify(res.to_dict()), res.code
 
 @timer_api_bp.route("/stop", methods=['POST'])
 def api_time_entry_stop():
-    payload = api_response()
-    code = 400
+    res = HTTPResponse()
+    res.code = 400
     try:
         data = request.json
-        payload['payload'] = stop_time_entry(int(data.get('id')), data.get('stop'))
-        payload['ok'] = True
-        code = 200
+        res.payload = TimeEntry.stop_timer(data.get("id"), stop=data.get('stop')).to_dict()
+        res.ok = True
+        res.code = 200
     except Exception as e:
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        app.logger.error(e)
+        res.message = str(e)
+    return jsonify(res.to_dict()), res.code

@@ -65,6 +65,11 @@ def is_base64(s):
     except Exception:
         return False
 
+def is_binary_base64(s):
+    bs = base64.b64decode(s)
+    textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
+    return bool(bs.translate(None, textchars))
+
 def location_attachment(storage, attachment) -> tuple:
     res_model = str(attachment.res_model).replace('_', '/')
     fname = f"{attachment.id}-{attachment.name}"
@@ -76,8 +81,12 @@ def save_attachment(storage, attachment, content) -> bool:
     if not os.path.exists(fpath):
         os.makedirs(fpath)
     decoded = base64.b64decode(content)
-    output_file = open(os.path.join(fpath, fname), 'w', encoding="utf-8")
-    output_file.write(decoded.decode('utf-8'))
+    if is_binary_base64(content):
+        output_file = open(os.path.join(fpath, fname), 'wb')
+    else:
+        output_file = open(os.path.join(fpath, fname), 'w', encoding="utf-8")
+        decoded = decoded.decode('utf-8')
+    output_file.write(decoded)
     output_file.close()
     return True
 

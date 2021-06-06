@@ -85,17 +85,17 @@
                         for (const detail_index in details){
                             var detail = details[detail_index]
                             analyze_list.innerHTML += `<li><a>`+detail[ttype].name+` 
-                            <span class="is-pulled-right">`+ TonaTimeEntry.FormatDuration(detail.duration)+`</span>
+                            <span class="is-pulled-right">`+ TimeEntry.FormatDuration(detail.duration)+`</span>
                             </a></li>`
                         }
                         analyze_header.innerHTML = "General"
                     }else{
                         var detail = details[id]
-                        analyze_header.innerHTML = detail[ttype].name +`<span class="is-pulled-right">`+TonaTimeEntry.FormatDuration(detail.duration)+`</span>`
+                        analyze_header.innerHTML = detail[ttype].name +`<span class="is-pulled-right">`+TimeEntry.FormatDuration(detail.duration)+`</span>`
                         for (const time_entry_index in detail.time_entries){
                             var time_entry = detail.time_entries[time_entry_index]
                             analyze_list.innerHTML += `<li><a>`+time_entry.name+` 
-                            <span class="is-pulled-right">`+ TonaTimeEntry.FormatDuration(time_entry.duration) +`</span>
+                            <span class="is-pulled-right">`+ TimeEntry.FormatDuration(time_entry.duration) +`</span>
                             </a></li>`
                         }
                     }

@@ -32,6 +32,8 @@ from tona.models.objective_keyresult import ObjectiveKeyResult
 from tona.models.objective_keyresult_checkin import ObjectiveKeyResultCheckin
 from tona.models.habit import Habit
 from tona.models.habit_checkin import HabitCheckin
+from tona.models.comment import Comment
+from tona.models.attachment import Attachment
 
 def extract_path(args):
     path = click.get_app_dir('tona')
@@ -64,7 +66,9 @@ def cli(ctx):
     db.create_tables([TimeEntry,
                         Project, ProjectTask,
                         Objective, ObjectiveKeyResult, ObjectiveKeyResultCheckin,
-                        Habit, HabitCheckin])
+                        Habit, HabitCheckin,
+                        Comment, Attachment])
+
 
 cli.add_command(cli_webapp)
 

@@ -15,15 +15,15 @@
 */
 
 (function(window){
-    function TonaTimeEntry (){
+    function TimeEntry (){
         var self = {};
         
         var startTime = null;  // Date.now()
         var intervalId = null;  // setInterval()
         var txtName = null;
-        var txtDuration = null; 
-        var btnStartTimeEntry = null;
-        var btnStopTimeEntry = null;
+        var txtDuration = null;
+        let menuDuration = null;
+
 
         self.FormatDuration = function (seconds, format="clock"){
             function pad(number) {
@@ -48,8 +48,15 @@
             intervalId = setInterval(function(){
                 var delta = Date.now() - startTime;
                 var seconds = Math.floor(delta/1000);  
+                let duration = self.FormatDuration(seconds);
                 if (txtDuration != null){                    
-                    txtDuration.textContent = self.FormatDuration(seconds)
+                    txtDuration.textContent = duration;
+                }
+                if (menuDuration != null){
+                    if  (menuDuration.classList.contains('is-hidden')){
+                        menuDuration.classList.remove('is-hidden')
+                    }
+                    menuDuration.textContent = duration;
                 }
             }, 1000);
         };
@@ -58,10 +65,24 @@
             clearInterval(intervalId);
             startTime = null;
             intervalId = null; 
-            txtDuration.textContent = "00:00:00"
+            if (txtDuration !== null){
+                txtDuration.textContent = "00:00:00"
+            }
+            if (menuDuration != null){
+                if  (!menuDuration.classList.contains('is-hidden')){
+                    menuDuration.classList.add('is-hidden')
+                }
+                menuDuration.textContent = "00:00:00";
+            }
+            if (txtName !== null){
+                txtName.value = "";
+            }
         };
 
         self.ToggleButton = function(){
+            let btnStartTimeEntry = document.querySelector(".start-time-entry");
+            let btnStopTimeEntry = document.querySelector(".stop-time-entry");
+
             if (btnStartTimeEntry != null && btnStopTimeEntry != null ){
                 if (intervalId != null){
                     btnStartTimeEntry.classList.add('is-hidden');
@@ -73,12 +94,26 @@
             }
         };
 
-        self.StartTimeEntry = function(start=Date.now()){
-            btnStartTimeEntry = document.getElementById("start-time-entry");
-            btnStopTimeEntry = document.getElementById("stop-time-entry");
+        self.StartTimeEntry = function(event, start=Date.now()){
+            console.log(event)
+            var widgetTimeEntry = event.target?.parentNode?.parentNode?.parentNode;
+            let data = {};
+            if (typeof(widgetTimeEntry?.dataset?.resModel)=== "string" && typeof(widgetTimeEntry?.dataset?.resId)=== "string"){
+                data["res_id"] = parseInt(widgetTimeEntry.dataset.resId);
+                data["res_model"] = widgetTimeEntry.dataset.resModel;
+            }else if (typeof(widgetTimeEntry?.dataset?.name)=== "string"){
+                data['name'] = timeEntry.dataset.name;
+            }else if (document.getElementById("time-entry-name")){
+                txtName = document.getElementById("time-entry-name");
+                if (txtName !== null){
+                    data['name'] = txtName.value;
+                }else{
+                    return;
+                }                
+            }          
             
-            txtName = document.getElementById("time-entry-name");
             txtDuration = document.getElementById("time-entry-duration");
+            menuDuration = document.querySelector("#menu-timer .time-entry-duration");
 
             if ( typeof(start) === "string"){
                 startTime = Date.parse(start+" UTC"); // TODO: after appened  UTC
@@ -86,12 +121,14 @@
                 self.ToggleButton()
                 return;
             }
+
             startTime = start;
             startDateTime = new Date(startTime);
-            self.request("start", {"name": txtName.value,"start": startDateTime.toISOString()})
+            data['start'] = startDateTime.toISOString();
+            self.request("start", data)
         };
 
-        self.StopTimeEntry = function(){
+        self.StopTimeEntry = function(event){
             self.request("stop", null)
         };
 
@@ -114,84 +151,79 @@
                     'Content-Type': 'application/json'
                 },
             }).then(response => response.json()).then(function(data){
-                if (action == "start"){
-                    self.Play();
-                    self.ToggleButton()
-                }else if (action == "stop"){
-                    self.Stop();
-                    self.ToggleButton()
-                    if (txtName !== null){
-                        txtName.value = "";
+                if (data['ok']){
+                    if (action == "start"){
+                        self.Play();
+                        self.ToggleButton()
+                    }else if (action == "stop"){
+                        self.Stop();
+                        self.ToggleButton()
                     }
+                }
+              
+            }).catch(function(error){
+                console.error(error);
+            });
+        };
+        
+        self.Running = function(event){
+            fetch("/api/time-entry/running", {
+                method: 'get',
+                headers: Tona.SetHeaders(),
+            }).then(response => response.json()).then(function(data){
+                if (data['ok']){
+                    let payload = data['payload'];                    
+                    let timer_menu = document.querySelector("#menu-timer");
+                    if ( timer_menu !== null){
+                        timer_menu.title = payload['name'];
+                    }
+                    let timer_addons = document.querySelector("#timer-addons");
+                    if (timer_addons !== null){
+                        var time_entry_name = timer_addons.querySelector("#time-entry-name");
+                        if ( time_entry_name !== null){
+                            time_entry_name.value = payload['name'];
+                        }
+                    }
+                    self.StartTimeEntry(event, payload['start']);
+                    self.ToggleButton();
                 }
             }).catch(function(error){
                 console.error(error);
             });
         };
 
-        /**Widget TimeEntry */
-        self.WidgetStartTimeEntry = function (event){
-            var $timeEntry = event.target.parentNode.parentNode.parentNode;
-            
-            btnStartTimeEntry = $timeEntry.querySelector("a.start-time-entry");
-            btnStopTimeEntry = $timeEntry.querySelector("a.stop-time-entry");
-            txtDuration = $timeEntry.querySelector("span.time-entry-duration");
-            startTime = Date.now();
-            startDateTime = new Date(startTime);
-            if (typeof($timeEntry.dataset.resModel)=== "string" && typeof($timeEntry.dataset.resId)=== "string"){
-                var id = parseInt($timeEntry.dataset.resId);
-                var model = $timeEntry.dataset.resModel;
-                if (id>0 && model != "" ){
-                    self.request("start", {res_id: id, res_model: model, "start": startDateTime.toISOString()})
-                }
-            }else if (typeof($timeEntry.dataset.name)=== "string"){
-                var name = $timeEntry.dataset.name;
-                if (name != "" ){
-                    self.request("start", {name: name, "start": startDateTime.toISOString()})
-                }
-            }
+        self.Widget = function (event){
+            (document.querySelectorAll('.widget-time-entry') || []).forEach((widgetTimeEntry)=>{
+                let content = `
+                    <a onclick="TimeEntry.StartTimeEntry(event)" 
+                        class="button is-small is-primary start-time-entry" title="Start time entry">
+                        <span class="icon is-small">
+                        <i class="fas fa-clock"></i>
+                    </span>
+                    </a>                  
+                    <a onclick="TimeEntry.StopTimeEntry(event)" 
+                        class="button is-small stop-time-entry is-hidden is-danger" title="Stop time entry">
+                        <span class="icon">
+                        <i class="fas fa-stop"></i>
+                        </span>
+                    </a>
+                `;
+                widgetTimeEntry.innerHTML = content;
+                
+            });
         };
-        
+
         return self;
     }
     
-    if (typeof(window.TonaTimeEntry) === 'undefined'){
-        window.TonaTimeEntry = TonaTimeEntry();
+    if (typeof(window.TimeEntry) === 'undefined'){
+        window.TimeEntry = TimeEntry();
     }
 
 })(window);
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    
-    (document.querySelectorAll('.widget-time-entry') || []).forEach(($timeEntry)=>{
-        var start = $timeEntry.querySelector("a.start-time-entry");
-        var stop = $timeEntry.querySelector("a.stop-time-entry");
-        var duration = $timeEntry.querySelector("span.time-entry-duration");
-        if (start === null || stop === null || duration === null){
-            return;
-        }
-        start.addEventListener('click', self.TonaTimeEntry.WidgetStartTimeEntry);
-        stop.addEventListener('click', self.TonaTimeEntry.StopTimeEntry);  
-        
-    });
-
-    var timer_addons = document.querySelector("#timer-addons");
-    if (timer_addons !== undefined){
-        fetch("/api/time-entry/running", {
-            method: 'get',
-            headers: Tona.SetHeaders(),
-        }).then(response => response.json()).then(function(data){
-            if (data['ok']){
-                var payload = data['payload']
-                TonaTimeEntry.StartTimeEntry(payload['start']);
-                var time_entry_name = timer_addons.querySelector("#time-entry-name")
-                if ( time_entry_name !== undefined){
-                    time_entry_name.value = payload['name'];
-                }
-            }
-        }).catch(function(error){
-            console.error(error);
-        });
-    }
+    TimeEntry.Widget(event);    
+    TimeEntry.Running(event);
 
 });

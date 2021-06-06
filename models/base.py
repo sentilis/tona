@@ -38,7 +38,7 @@ class BaseModel(peewee.Model):
     @classmethod
     def check(cls, id):
         """ Deprecated """
-        rows = cls.select().where(cls.id == id, cls.active == True).limit(1)
+        rows = cls.select().where(cls.id == id).limit(1)
         if len(rows):
             return rows
         raise peewee.DoesNotExist(f"{cls.__name__}: Record ID {id} not found")
@@ -50,16 +50,8 @@ class BaseModel(peewee.Model):
             return row
         raise peewee.DoesNotExist(f"{cls.__name__}: Record ID {id} not found")
 
-    @classmethod
-    def get_unarchived(cls):
-        return cls.select().where(cls.active == True)
-
-    @classmethod
-    def get_archived(cls):
-        return cls.select().where(cls.active == False)
-
     def to_dict(self):
-        return model_to_dict(self, recurse=True, exclude=['active', 'created_at', 'edited_at'])
+        return model_to_dict(self, recurse=True)
 
     @classmethod
     def prepare_fields(cls, data: dict, only: list = [], exclude: list = [], allowed: dict = {}, required=False):
@@ -84,7 +76,7 @@ class BaseModel(peewee.Model):
                 tmp.update({field: format_datetime(data.get(field), fmt_in=FORMAT_DATE, obj=True).date()})
             elif allowed.get(field) in ['datetime', 'DATETIME'] and data.get(field, None):
                 tmp.update({field: format_datetime(data.get(field), obj=True)})
-            elif allowed.get(field) in ['bool', 'BOOL'] and data.get(field, None):
+            elif allowed.get(field) in ['bool', 'BOOL'] and field in data.keys():
                 tmp.update({field: bool(data.get(field))})
         if required:
             requireds = []
@@ -95,22 +87,23 @@ class BaseModel(peewee.Model):
                 raise Exception(f"{cls.__name__}: Fields required: {str(only)} and missing: {str(requireds)}")
         return tmp
 
+
     @classmethod
-    def add(cls, **kwargs):
+    def add(cls, **kwargs) -> peewee.Model:
         raise NotImplementedError
 
     @classmethod
-    def edit(cls, id, **kwargs):
-        return cls.exists(id).to_dict()
+    def edit(cls, id, **kwargs) -> peewee.Model:
+        return cls.get(id)
 
     @classmethod
-    def archive(cls, id=None):
-        if id:
-            cls.update({"active": False}).where(cls.id == id)
-        return cls.update({"active": False}).execute()
+    def remove(cls, id) -> bool:
+        cls.get(id)
+        cls.delete().where(cls.id == id).execute()
+        return True
 
     @classmethod
-    def unarchive(cls, id=None):
-        if id:
-            cls.update({"active": True}).where(cls.id == id)
-        return cls.update({"active": True}).execute()
+    def archive(cls, id) -> peewee.Model:
+        row = cls.get(id)
+        cls.update({"active": not row.active}).where(cls.id == id).execute()
+        return cls.get(id)

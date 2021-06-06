@@ -20,7 +20,7 @@ from tona.utils import api_response
 from tona.models.project import Project
 from tona.models.objective import Objective
 from tona.models.habit import Habit
-from tona.utils import APIResponse
+from tona.utils import HTTPResponse
 
 timer_bp = Blueprint('timer_bp', __name__,
                         template_folder='templates',
@@ -126,7 +126,7 @@ def api_time_entry():
 
 @timer_api_bp.route("/running", methods=['GET'])
 def api_time_entry_running():
-    res = APIResponse()
+    res = HTTPResponse()
     res.code = 404
     try:
         time_entry = TimeEntry.running()

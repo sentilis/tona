@@ -34,7 +34,7 @@ class ProjectTask(BaseModel):
 
     @classmethod
     def edit(cls, id, **kwargs):
-        data = cls.prepare_fields(kwargs, only=['name', 'description', 'status', 'due', 'priority'])
+        data = cls.prepare_fields(kwargs, only=['name', 'description', 'status', 'due', 'priority', 'active'])
         if 'due' in kwargs.keys():
             due = kwargs.pop('due')
             if not due:
@@ -48,5 +48,10 @@ class ProjectTask(BaseModel):
         Project.exists(data.get("project_id"))
         data_opt = cls.prepare_fields(kwargs, only=['description', 'status', 'due', 'priority'])
         data = {**data, **data_opt}
-        id = cls.create(**data)
-        return id.to_dict()
+        return cls.create(**data)
+
+    @classmethod
+    def remove(cls, id):
+        cls.get(id)
+        # TODO: Delete time entries related
+        return super(ProjectTask, cls).remove(id)

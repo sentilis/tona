@@ -48,12 +48,12 @@
               <input id="time-entry-name" value="" class="input is-primary" type="text" placeholder="What are you working on?">
             </p>
             <p class="control">
-              <a onclick="TonaTimeEntry.StartTimeEntry()" id="start-time-entry" class="button is-primary" title="Start time entry">
+              <a onclick="TimeEntry.StartTimeEntry(event)" class="button is-primary start-time-entry" title="Start time entry">
                 <span class="icon">
                   <i class="fas fa-clock"></i>
                 </span>
               </a>
-              <a onclick="TonaTimeEntry.StopTimeEntry()"id="stop-time-entry" class="button is-danger is-hidden" title="Stop time entry">
+              <a onclick="TimeEntry.StopTimeEntry(event)" class="button is-danger is-hidden stop-time-entry" title="Stop time entry">
                 <span class="icon">
                   <i class="fas fa-stop"></i>
                 </span>

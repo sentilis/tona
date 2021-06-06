@@ -16,7 +16,7 @@
     {% block head %}
         <script src="{{url_for('static', filename='js/simplemde.min.js')}}"></script>
         <script src="{{url_for('static', filename='js/marked.min.js')}}"></script>
-        <script src="{{url_for('static', filename='js/tona.js')}}"></script>
+        <script src="{{url_for('static', filename='js/main.js')}}"></script>
         <script src="/time-entry/assets/timer.js"></script>
     {% endblock %}
 </head>
@@ -37,8 +37,9 @@
             </div>            
             <div id="tona-navbar-menu" class="navbar-menu">
                 <div class="navbar-end">
-                    <a class="navbar-item" href="/time-entry">
+                    <a id="menu-timer" class="navbar-item" href="/time-entry" title="Timer">
                         Timer
+                        <span class="ml-2 time-entry-duration is-hidden has-text-weight-semibold">00:00:00</span>
                     </a>
                     <a class="navbar-item" href="/project/today">
                         Project

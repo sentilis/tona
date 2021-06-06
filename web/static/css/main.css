@@ -19,3 +19,7 @@ li > a > input[type=checkbox].priority-1 {
 .select.priority-1 select{
     border-color:#3298dc
 }
+
+.has-text-strikethrough{
+    text-decoration: line-through;
+}

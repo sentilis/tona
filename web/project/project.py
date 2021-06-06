@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from flask import render_template, request, jsonify, flash, Blueprint
 import datetime
 from tona.web.app import app
@@ -98,11 +99,11 @@ def project(project_id="", task_id=0):
                 project = Project.check(project_id)[0]
                 is_project = True
                 tasks = {
-                    'todo': ProjectTask.select().where(ProjectTask.project_id == project.id, ProjectTask.active == True, 
+                    'todo': ProjectTask.select().where(ProjectTask.project_id == project.id, 
                                                         ProjectTask.status == 'todo'),
-                    'doing': ProjectTask.select().where(ProjectTask.project_id == project.id, ProjectTask.active == True, 
+                    'doing': ProjectTask.select().where(ProjectTask.project_id == project.id, 
                                                         ProjectTask.status == 'doing'),
-                    'review': ProjectTask.select().where(ProjectTask.project_id == project.id, ProjectTask.active == True, 
+                    'review': ProjectTask.select().where(ProjectTask.project_id == project.id, 
                                                         ProjectTask.status == 'review'),
                 }
         except Exception as e:
@@ -154,19 +155,18 @@ def api_project():
     return jsonify(payload), code
 
 @project_api_bp.route("/task", methods=['POST'])
-@project_api_bp.route("/task/<int:id>", methods=['PUT'])
+@project_api_bp.route("/task/<int:id>", methods=['PUT', 'DELETE'])
 def api_project_task(id=0):
     payload = api_response()
     code = 400
     try:
         data = request.json
         if request.method == 'POST':
-            payload['payload'] = ProjectTask.add(**data)
-        else:
-            if id:
-                payload['payload'] = ProjectTask.edit(id, **data)
-            else:
-                raise Exception("For Edit is required ID")
+            payload['payload'] = ProjectTask.add(**data).to_dict()
+        elif request.method in ['PUT']:
+            payload['payload'] = ProjectTask.edit(id, **data).to_dict()
+        elif request.method == 'DELETE':
+            ProjectTask.remove(id)
         payload['ok'] = True
         code = 200
     except Exception as e:

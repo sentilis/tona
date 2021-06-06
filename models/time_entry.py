@@ -148,6 +148,15 @@ class TimeEntry(BaseModel):
             pass
         return None
 
+    @classmethod
+    def remove(cls, id, model=None) -> bool:
+        if model:
+            cls.delete().where(cls.res_id == id, cls.res_model == model).execute()
+        else:
+            cls.delete().where(cls.id == id).execute()
+        return True
+
+
 def start_time_entry(name: str, start: str, res_model: str = None, res_id: str = None):
     if TimeEntry.running() is not None:
         raise Exception("You have an active time entry")

@@ -13,8 +13,18 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import os
+import base64
 
-class APIResponse:
+class HTTPException(BaseException):
+
+    def __init__(self, code, message, *args: object) -> None:
+        self.code = code
+        self.message = message
+        super().__init__(*args)
+
+
+class HTTPResponse:
     ok = False
     message = None
     payload = {}
@@ -28,7 +38,7 @@ class APIResponse:
         }
         if self.message:
             data.update(dict(message=self.message))
-        if self.payload and isinstance(self.payload, dict) and len(self.payload.keys()):
+        if self.payload:
             data.update(dict(payload=self.payload))
         if len(self.erros):
             data.update(dict(erros=self.erros))
@@ -49,16 +59,31 @@ def str2int(val: str):
         pass
     return 0
 
-def path_storage():
-    pass
+def is_base64(s):
+    try:
+        return base64.b64encode(base64.b64decode(s)) == s
+    except Exception:
+        return False
 
-def name_constraint(name):
-    if not name:
-        print("The argument name is required")
-        raise SystemExit(1)
-    if not isinstance(name, tuple):
-        print("The argument name not is tuple")
-        raise SystemExit(1)
-    return ' '.join(name)
+def location_attachment(storage, attachment) -> tuple:
+    res_model = str(attachment.res_model).replace('_', '/')
+    fname = f"{attachment.id}-{attachment.name}"
+    fpath = os.path.join(storage, res_model, str(attachment.res_id))
+    return fpath, fname
 
+def save_attachment(storage, attachment, content) -> bool:
+    fpath, fname = location_attachment(storage, attachment)
+    if not os.path.exists(fpath):
+        os.makedirs(fpath)
+    decoded = base64.b64decode(content)
+    output_file = open(os.path.join(fpath, fname), 'w', encoding="utf-8")
+    output_file.write(decoded.decode('utf-8'))
+    output_file.close()
+    return True
 
+def remove_attachment(storage, attachment) -> bool:
+    fpath, fname = location_attachment(storage, attachment)
+    ffile = os.path.join(fpath, fname)
+    if os.path.exists(ffile):
+        os.remove(ffile)
+    return True

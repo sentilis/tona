@@ -20,7 +20,8 @@ from tona.web.app import app
 from tona.utils import convert_datetime, FORMAT_DATE, FORMAT_DATETIME, FORMAT_TIME, format_time_duration
 from tona.web.timer.timer import timer_bp, timer_api_bp
 from tona.web.project.project import project_bp, project_api_bp
-
+from tona.web.comment import comment_api_bp
+from tona.web.attachment import attachment_api_bp
 
 @app.context_processor
 def utility_processor():
@@ -46,6 +47,8 @@ app.register_blueprint(timer_api_bp)
 app.register_blueprint(project_bp)
 app.register_blueprint(project_api_bp)
 
+app.register_blueprint(comment_api_bp)
+app.register_blueprint(attachment_api_bp)
 
 import tona.web.controllers.objective
 import tona.web.controllers.habit

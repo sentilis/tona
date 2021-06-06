@@ -78,6 +78,8 @@
                 data[field]= value;
             }
 
+            let method = 'put';
+
             if (field == 'due') {
                 var utc = new Date(new Date( data[field]).getTime());
                 data[field]= utc.toISOString();
@@ -87,9 +89,14 @@
                 if (task_due !== undefined){
                     task_due.value = ""
                 }
+            }else if (field == 'active'){
+                data[field] = !(value === 'True');
+            }else if(field == 'delete'){
+                method = 'delete';
             }
+
             fetch("/api/project/task/"+id, {
-                method: 'put',
+                method: method,
                 body: JSON.stringify(data),
                 headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
@@ -135,5 +142,3 @@
         window.Project = Project();
     }
 })(window);
-
-Tona.SimpleMDE(); 

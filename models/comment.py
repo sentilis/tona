@@ -36,5 +36,4 @@ class Comment(BaseModel):
     @classmethod
     def add(cls, **kwargs):
         data = cls.prepare_fields(kwargs, only=['content', 'res_model', 'res_id'], required=True)
-        data = {**data, **data}
         return cls.create(**data)

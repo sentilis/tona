@@ -13,9 +13,10 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, request, jsonify
 from tona.utils import HTTPException, HTTPResponse
 from tona.models.comment import Comment
+from tona.web.app import app
 
 comment_api_bp = Blueprint('comment_api_bp', __name__, url_prefix='/api/comment')
 
@@ -39,7 +40,6 @@ def comment(id=0):
             id = int(request.args.get('id', 0))
             if not model and not id:
                 raise HTTPException(400, "Params required model & id ")
-
             rows = Comment.select().where(Comment.res_id ==id, Comment.res_model ==model).order_by(
                                             Comment.created_at.desc()).paginate(offset, limit)
             data = []
@@ -51,6 +51,8 @@ def comment(id=0):
     except HTTPException as e:
         res.code = e.code
         res.message = e.message
+        app.logger.error(e)
     except Exception as e:
         res.message  = str(e)
+        app.logger.error(e)
     return jsonify(res.to_dict()), res.code

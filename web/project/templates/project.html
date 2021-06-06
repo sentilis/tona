@@ -49,7 +49,7 @@
           </div>
         </div>
     </div>
-    <div class="column">      
+    <div class="column is-two-fifths">      
       {% if is_today or is_tomorrow or is_week %}
       <aside id="project-today" class="menu">
         {% for key in tasks %}
@@ -59,14 +59,16 @@
           <ul id="{{key}}-menu-list"class="menu-list">
             {% for row in tasks[key] %}
               <li draggable="true" id="task-menu-item-{{row.id}}">
-                <a href="/project/{{row.project_id.id}}/task/{{row.id}}" class="{{ 'is-active'if is_task and row.id==task.id else ''}}">
-                  <input type="checkbox" class="mr-2" onclick="Project.EditTask(event,{{row.id}},'status','done')">
+                <a href="/project/{{row.project_id.id}}/task/{{row.id}}" class="{{ 'is-active'if is_task and row.id==task.id else ''}} {{ '' if row.active else 'has-text-strikethrough' }}">
+                  <input type="checkbox" class="mr-2 priority-{{row.priority}}" onclick="Project.EditTask(event,{{row.id}},'status','done')">
                   {{row.name}}
                   
                   {% if row.due %}
                     <span class="is-pulled-right">{{convert_datetime(row.due, fmt_out='%b %d, %Y')}}</span>
                   {% endif %}
-                  <span class="is-pulled-right pr-2 is-small">{{row.project_id.name}}</span>
+                  <span class="is-pulled-right pr-2 is-small">
+                    <span class="tag is-light">{{row.project_id.name}}</span>
+                  </span>
                 </a>
             </li>
             {% endfor %}

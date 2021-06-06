@@ -52,28 +52,28 @@
                     </a>
                     {% block navbar_end %}
                     {% endblock %}
+                    <a class="navbar-item">
+                        <div class="column has-text-centered notification is-light is-hidden">
+                            <!--button class="ml-6 delete"></button-->
+                            <p id="notification-content" class="content is-small">
+                            {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                                <script type="text/javascript">
+                                    document.addEventListener("DOMContentLoaded",Tona.Notification);
+                                </script>
+                                {% endif %}
+                            {% endwith %}
+                            </p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </nav>
     </header>
     <main class="ml-5 mr-5 mt-4 pt-6">
-        <div class="columns is-mobile is-centered is-hidden">
-            <div class="column has-text-centered notification is-light">
-                <button class="delete"></button>
-                <p id="notification-content" class="content is-small">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    {% for message in messages %}
-                        {{ message }}
-                    {% endfor %}
-                    <script type="text/javascript">
-                        document.addEventListener("DOMContentLoaded",Tona.Notification);
-                    </script>
-                    {% endif %}
-                {% endwith %}
-                </p>
-            </div>
-        </div>
         {% block content %}{% endblock %}
     </main>
     <footer class="footer mt-5">

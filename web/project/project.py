@@ -20,7 +20,7 @@ import datetime
 from tona.web.app import app
 from tona.models.project import create_project, Project
 from tona.models.project_task import ProjectTask
-from tona.utils import api_response, convert_datetime
+from tona.utils import HTTPResponse, convert_datetime, str2int
 
 project_bp = Blueprint('project_bp', __name__,
                         template_folder='templates',
@@ -46,72 +46,87 @@ def project(project_id="", task_id=0):
     tasks = None
     task = None
 
+    show_archive = request.args.get("archive", None)
+    show_done = request.args.get("done", None)
+
     if project_id == "today":
         is_today = True
         now = datetime.datetime.utcnow()
         due = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
         due = due.replace(hour=23, minute=59, second=59)
+
+        tasks_due = ProjectTask.select().where(ProjectTask.due < due,
+                                                    ProjectTask.due != None,
+                                                    ProjectTask.status != 'done')
+        tasks_today = ProjectTask.select().where( (ProjectTask.due.year == now.year) & (ProjectTask.due.month == now.month) & (ProjectTask.due.day == now.day),
+                                                    ProjectTask.due != None,
+                                                    ProjectTask.status != 'done')
+        if not show_archive:
+            tasks_due = tasks_due.where(ProjectTask.active == True)
+            tasks_today = tasks_today.where(ProjectTask.active == True)
         tasks = {
-            "overdue": ProjectTask.select().where(ProjectTask.due < due,
-                                                    ProjectTask.active == True,
-                                                    ProjectTask.due != None,
-                                                    ProjectTask.status != 'done'),
-            "today": ProjectTask.select().where( (ProjectTask.due.year == now.year) & (ProjectTask.due.month == now.month) & (ProjectTask.due.day == now.day),
-                                                    ProjectTask.active == True,
-                                                    ProjectTask.due != None,
-                                                    ProjectTask.status != 'done'),
+            "overdue": tasks_due,
+            "today": tasks_today,
         }
     elif project_id == "tomorrow":
         is_tomorrow = True
         now = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        tasks = {            
-            "tomorrow": ProjectTask.select().where( (ProjectTask.due.year == now.year) & (ProjectTask.due.month == now.month) & (ProjectTask.due.day == now.day),
-                                                    ProjectTask.active == True,
+        tasks_tomorrow = ProjectTask.select().where( (ProjectTask.due.year == now.year) & (ProjectTask.due.month == now.month) & (ProjectTask.due.day == now.day),
                                                     ProjectTask.due != None,
-                                                    ProjectTask.status != 'done'),
+                                                    ProjectTask.status != 'done')
+        if not show_archive:
+            tasks_tomorrow = tasks_tomorrow.where(ProjectTask.active == True)
+
+        tasks = {
+            "tomorrow": tasks_tomorrow,
         }
     elif project_id == "week":
         is_week = True
         tasks = {}
         groups = {"overdue": -1, "today": 0, "+1": 1, "+2": 2,"+3": 3, "+4": 4, "+5": 5}
+
         for group in groups:
             now = datetime.datetime.utcnow() + datetime.timedelta(days=groups.get(group))
             if group == 'overdue':
                 now = now.replace(hour=23, minute=59, second=59)
-                tasks[group] = ProjectTask.select().where(ProjectTask.due < now,
-                                                    ProjectTask.active == True,
+                tasks_due = ProjectTask.select().where(ProjectTask.due < now,
                                                     ProjectTask.due != None,
                                                     ProjectTask.status != 'done')
+                if not show_archive:
+                    tasks_due = tasks_due.where(ProjectTask.active == True)
+                tasks[group] = tasks_due
             else:
                 label = convert_datetime(now, tz_out=app.config['TZ'], fmt_out="%A, %b %d") if group != 'today' else 'today'
-                tasks[label] = ProjectTask.select().where(
+                tasks_week = ProjectTask.select().where(
                                                     (ProjectTask.due.year == now.year) &
                                                     (ProjectTask.due.month == now.month) &
                                                     (ProjectTask.due.day == now.day),
-                                                    ProjectTask.active == True,
                                                     ProjectTask.due != None,
                                                     ProjectTask.status != 'done')
+                if not show_archive:
+                    tasks_week = tasks_week.where(ProjectTask.active == True)
+                tasks[label] = tasks_week
 
     else:
         try:
-            project_id = int("".join([n for n in project_id if n.isdigit()]))
-            if project_id:
-                project = Project.check(project_id)[0]
-                is_project = True
-                tasks = {
-                    'todo': ProjectTask.select().where(ProjectTask.project_id == project.id, 
-                                                        ProjectTask.status == 'todo'),
-                    'doing': ProjectTask.select().where(ProjectTask.project_id == project.id, 
-                                                        ProjectTask.status == 'doing'),
-                    'review': ProjectTask.select().where(ProjectTask.project_id == project.id, 
-                                                        ProjectTask.status == 'review'),
-                }
+            project_id = str2int(project_id)
+            project = Project.get(project_id)
+            is_project = True
+            tasks = {}
+            for status in ['todo', 'doing', 'review', 'done']:
+                if status == 'done' and not show_done:
+                    continue
+                tasks_status = ProjectTask.select().where(ProjectTask.project_id == project.id,
+                                                    ProjectTask.status == status)
+                if not show_archive:
+                    tasks_status = tasks_status.where(ProjectTask.active == True)
+                tasks[status] = tasks_status
         except Exception as e:
             flash(str(e))
 
     if task_id:
         try:
-            task = ProjectTask.check(task_id)[0]
+            task = ProjectTask.get(task_id)
             is_task = True
         except Exception as e:
             flash(str(e))
@@ -131,14 +146,14 @@ def project(project_id="", task_id=0):
         task=task)
     return rt
 
-@project_api_bp.route("/", methods=['POST', 'GET'])
+@project_api_bp.route("", methods=['POST', 'GET'])
 def api_project():
-    payload = api_response()
-    code = 400
+    res = HTTPResponse()
+    res.code = 400
     try:
         if request.method == 'POST':
             data = request.json
-            payload['payload'] = create_project(data.get('name'))
+            res.payload = create_project(data.get('name'))
         else:
             offset = int(request.args.get('offset', 1))
             limit = int(request.args.get('limit', 10))
@@ -146,30 +161,30 @@ def api_project():
             data = []
             for row in rows:
                 data.append(row.to_dict())
-            payload['payload'] = data
-        payload['ok'] = True
-        code = 200
+            res.payload = data
+        res.ok = True
+        res.code = 200
     except Exception as e:
-        # app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        app.logger.error(e)
+        res.message = str(e)
+    return jsonify(res.to_dict()), res.code
 
 @project_api_bp.route("/task", methods=['POST'])
 @project_api_bp.route("/task/<int:id>", methods=['PUT', 'DELETE'])
 def api_project_task(id=0):
-    payload = api_response()
-    code = 400
+    res = HTTPResponse()
+    res.code = 400
     try:
         data = request.json
         if request.method == 'POST':
-            payload['payload'] = ProjectTask.add(**data).to_dict()
+            res.payload = ProjectTask.add(**data).to_dict()
         elif request.method in ['PUT']:
-            payload['payload'] = ProjectTask.edit(id, **data).to_dict()
+            res.payload = ProjectTask.edit(id, **data).to_dict()
         elif request.method == 'DELETE':
             ProjectTask.remove(id)
-        payload['ok'] = True
-        code = 200
+        res.ok = True
+        res.code = 200
     except Exception as e:
         app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        res.message = str(e)
+    return jsonify(res.to_dict()), res.code

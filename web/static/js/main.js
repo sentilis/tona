@@ -253,6 +253,8 @@ if ( !Date.prototype.toISOString ) {
               if (data['ok']){
                   content.value = "";
                   self.LoadComment(event)
+              }else{
+                self.Notification(event, data['message'])
               }
           }).catch(function(error){
               console.error(error);
@@ -325,6 +327,8 @@ if ( !Date.prototype.toISOString ) {
           }).then(response => response.json()).then(function(data){
             if (data['ok']){
               content.remove()
+            }else{
+              self.Notification(event, data['message'])
             }
           }).catch(function(error){
               console.error(error);
@@ -387,7 +391,6 @@ if ( !Date.prototype.toISOString ) {
             fileName.textContent = file.name;
           }
           self.AttchementBase64(file).then((content)=>{
-            console.log(content)
             let contentList = content.split(";base64,");
             let data = {
               'content':  contentList[1],
@@ -406,6 +409,8 @@ if ( !Date.prototype.toISOString ) {
                 fileName.textContent = "";
                 fileInput.value = "";
                 self.LoadAttachment(event)
+              }else{
+                self.Notification(event, data['message'])
               }
             }).catch(function(error){
                 console.error(error);
@@ -463,8 +468,7 @@ if ( !Date.prototype.toISOString ) {
                       if (csm !== null){
                         csm.remove();
                         content.innerHTML +=`<a onclick="Tona.LoadAttachment(event, 1)" class="attachment-show-more">Show less</a>`;
-                      }
-                      
+                      }   
                   }
               }
           }).catch(function(error){
@@ -482,6 +486,8 @@ if ( !Date.prototype.toISOString ) {
           }).then(response => response.json()).then(function(data){
             if (data['ok']){
               content.remove()
+            }else{
+              self.Notification(event, data['message'])
             }
           }).catch(function(error){
               console.error(error);

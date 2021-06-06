@@ -63,8 +63,10 @@ def attachment(id=0):
     except HTTPException as e:
         res.code = e.code
         res.message = e.message
+        app.logger.error(e)
     except Exception as e:
         res.message  = str(e)
+        app.logger.error(e)
     return jsonify(res.to_dict()), res.code
 
 @attachment_api_bp.route('/<action>/<int:id>')
@@ -81,11 +83,14 @@ def attachment_action(action, id):
         else:
             raise HTTPException(405, "Only support action download & preview")
         return send_from_directory(fpath, fname, as_attachment=as_attachment)
-    except FileNotFoundError:
+    except FileNotFoundError as e:
+        app.logger.error(e)
         abort(404)
     except HTTPException as e:
         res.code = e.code
         res.message = e.message
+        app.logger.error(e)
     except Exception as e:
         res.message  = str(e)
+        app.logger.error(e)
     return jsonify(res.to_dict()), res.code

@@ -6,7 +6,7 @@
     <a href=".pm/version.yml">
         <img src="https://img.shields.io/badge/dynamic/yaml?color=green&label=version&query=version.*&url=https://raw.githubusercontent.com/sentilis/tona/main/.pm/version.yml">
     </a>
-      </a href="https://github.com/sentilis/tona/issues">
+    <a href="https://github.com/sentilis/tona/issues">
       <img alt="GitHub issues" src="https://img.shields.io/github/issues/sentilis/tona"/>
     </a>
     <a href="https://github.com/sentilis/tona/discussions">

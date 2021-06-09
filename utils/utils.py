@@ -81,11 +81,7 @@ def save_attachment(storage, attachment, content) -> bool:
     if not os.path.exists(fpath):
         os.makedirs(fpath)
     decoded = base64.b64decode(content)
-    if is_binary_base64(content):
-        output_file = open(os.path.join(fpath, fname), 'wb')
-    else:
-        output_file = open(os.path.join(fpath, fname), 'w', encoding="utf-8")
-        decoded = decoded.decode('utf-8')
+    output_file = open(os.path.join(fpath, fname), 'wb')
     output_file.write(decoded)
     output_file.close()
     return True

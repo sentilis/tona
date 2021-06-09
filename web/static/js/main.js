@@ -397,7 +397,7 @@ if ( !Date.prototype.toISOString ) {
               'res_model': model,
               'res_id': parseInt(id), 
               'name': file.name,
-              'mime': file.type,
+              'mime': file.type || contentList[0].replace("data:", ""),
             }
             fetch('/api/attachment',{ 
               method:'post', 

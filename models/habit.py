@@ -27,15 +27,14 @@ class Habit(BaseModel):
     every = peewee.CharField(default="sunday,monday,tuesday,wednesday,thursday,friday,saturday")
 
     @classmethod
-    def prepare_fields(self, data, only=[], exclude=[], allowed={}):
-        allowed = {
-            'name': 'str',
-            'frequency': 'str',
-            'every': 'str'
-        }
-        return super(Habit, self).prepare_fields(data, only=only, exclude=exclude, allowed=allowed)
+    def add(cls, **kwargs):
+        data = cls.prepare_fields(kwargs, only=['name'], required=True)
+        data_opt = cls.prepare_fields(kwargs, only=['frequency', 'every'])
+        data = {**data, **data_opt}
+        return cls.create(**data)
 
-def create_habit(**kwargs):
-    data = Habit.prepare_fields(kwargs, only=['name'])
-    row = Habit.create(**data)
-    return row.to_dict()
+    @classmethod
+    def edit(cls, id, **kwargs):
+        data = cls.prepare_fields(kwargs, only=['name', 'frequency', 'every', 'active'])
+        cls.update(data).where(cls.id == id).execute()
+        return super(Habit, cls).edit(id, **kwargs)

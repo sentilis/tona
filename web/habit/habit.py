@@ -14,14 +14,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import datetime
-from flask import render_template, request, jsonify, flash
+from flask import render_template, request, jsonify, flash, Blueprint
 from tona.web.main import app
-from tona.utils import api_response , str2int, format_datetime
-from tona.models.habit import Habit,  create_habit
-from tona.models.habit_checkin import HabitCheckin, create_habit_checkin
+from tona.utils import HTTPResponse, str2int, format_datetime
+from tona.models.habit import Habit
+from tona.models.habit_checkin import HabitCheckin
 
-@app.route("/habit")
-@app.route("/habit/<habit_id>")
+
+habit_bp = Blueprint('habit_bp', __name__,
+                        template_folder='templates',
+                        static_folder='static', static_url_path='assets',
+                        url_prefix='/habit')
+
+habit_api_bp = Blueprint('habit_api_bp', __name__, url_prefix='/api/habit')
+
+@habit_bp.route("/")
+@habit_bp.route("/<habit_id>")
 def habit(habit_id=""):
 
     is_today = False
@@ -48,7 +56,7 @@ def habit(habit_id=""):
            Habit.id.not_in( has_checkin)
         )
         habits_aux = {
-            'unchecked': unchecked, 
+            'unchecked': unchecked,
             'checked': checked
         }
     elif habit_id == "archive":
@@ -58,7 +66,7 @@ def habit(habit_id=""):
             habit_id = str2int(habit_id)
             habit = Habit.exists(habit_id)
             is_habit = True
-        except Exception as e: 
+        except Exception as e:
             flash(str(e))
     rt = render_template(
         "habit.html",
@@ -70,14 +78,13 @@ def habit(habit_id=""):
     return rt
 
 
-@app.route("/api/habit", methods=['POST', 'GET'])
+@habit_api_bp.route("", methods=['POST', 'GET'])
 def api_habit():
-    payload = api_response()
-    code = 400
+    resp = HTTPResponse()
     try:
         if request.method == 'POST':
             data = request.json
-            payload['payload'] = create_habit(**data)
+            resp.payload = Habit.add(**data).to_dict()
         else:
             offset = int(request.args.get('offset', 1))
             limit = int(request.args.get('limit', 10))
@@ -85,23 +92,22 @@ def api_habit():
             data = []
             for row in rows:
                 data.append(row.to_dict())
-            payload['payload'] = data
-        payload['ok'] = True
-        code = 200
+            resp.payload = data
+        resp.ok = True
+        resp.code = 200
     except Exception as e:
         app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        resp.message = str(e)
+    return jsonify(resp.to_dict()), resp.code
 
 
-@app.route("/api/habit/checkin", methods=['POST', 'GET'])
+@habit_api_bp.route("/checkin", methods=['POST', 'GET'])
 def api_habit_checkin():
-    payload = api_response()
-    code = 400
+    resp = HTTPResponse()
     try:
         if request.method == 'POST':
             data = request.json
-            payload['payload'] = create_habit_checkin(**data)
+            resp.payload = HabitCheckin.add(**data).to_dict()
         else:
             offset = int(request.args.get('offset', 1))
             limit = int(request.args.get('limit', 10))
@@ -116,10 +122,10 @@ def api_habit_checkin():
                 rows = HabitCheckin.select().order_by(HabitCheckin.checkin.desc()).paginate(offset, limit)
             for row in rows:
                 data.append(row.to_dict())
-            payload['payload'] = data
-        payload['ok'] = True
-        code = 200
+            resp.payload = data
+        resp.ok = True
+        resp.code = 200
     except Exception as e:
         app.logger.error(e)
-        payload['message'] = str(e)
-    return jsonify(payload), code
+        resp.message = str(e)
+    return jsonify(resp.to_dict()), resp.code

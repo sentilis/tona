@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2021  The Project TONA Authors
+#    Copyright (C) 2021 The Project TONA Authors
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,21 +13,3 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import peewee
-from tona.models.base import BaseModel
-from tona.models.habit import Habit
-
-class HabitCheckin(BaseModel):
-
-    class Meta:
-        table_name = 'habit_checkin'
-
-    habit_id = peewee.ForeignKeyField(Habit)
-    name = peewee.TextField()
-    checkin = peewee.DateField()
-
-
-    @classmethod
-    def add(cls, **kwargs):
-        data = cls.prepare_fields(kwargs, only=['habit_id', 'name', 'checkin'], required=True)
-        return cls.create(**data)

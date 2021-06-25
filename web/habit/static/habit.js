@@ -53,10 +53,6 @@
             var doc =  event.target.parentNode
             var id = "habit-checkin-name";
             var name = doc.querySelector("#"+id);
-            var simplemde = Tona.QueueSimpleMDE[id]
-            if ( Tona.IsSimpleMDE(simplemde) ){
-                name.value = simplemde.value();
-            }
             
             if (name.value != "") {
 
@@ -74,9 +70,6 @@
                 }).then(response => response.json()).then(function(data){
                     if (data['ok']){
                         name.value = ""
-                        if ( Tona.IsSimpleMDE(simplemde) ){
-                            Tona.QueueSimpleMDE[id].value("");
-                        }
                         Tona.Notification(event, "Your chekin is added", type="info", interval=1000)
                         self.LoadCheckin(event, habit_id);
                     }else{
@@ -89,12 +82,12 @@
         }
 
         self.LoadCheckin = function(event, habit_id, offset=1){
-            var history = document.querySelector("#habit-checkin");
+            var history = document.querySelector("#habit-tab-activity");
             if (offset == 1){
                 history.innerHTML = "";
             }
             
-            fetch(self.API +"/checkin?habit_id="+habit_id+"&offset="+offset+"&limit=10", {
+            fetch(self.API +"/checkin?habit_id="+habit_id+"&offset="+offset+"&limit=5", {
                 method: 'get',
                 headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
@@ -104,12 +97,14 @@
                     if (payload.length > 0){
                         for ( a = 0 ; a  < payload.length; a++ ){
                             var checkin = payload[a]
+                            //let dt = new Date(Date.parse(checkin['checkin']));
+                            
                             var msg = `<article class="media">
                                 <div class="media-content">
                                 <div class="content">
                                     <p>
-                                    `+marked(checkin['name'])+`
-                                    <small><a>`+checkin['checkin']+`</a></small>
+                                    `+ checkin['name'] +` <br/>
+                                    <small><a>`+ checkin['checkin'] +`</a></small>
                                     </p>
                                 </div>
                                 </div>
@@ -128,13 +123,10 @@
                         }
                     }   
                 }
-                
             }).catch(function(error){
                 console.error(error);
             });
-
         };
-
         return self;
     }
 

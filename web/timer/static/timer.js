@@ -210,6 +210,45 @@
             });
         };
 
+        self.EditTimeEntry = function(event, id, field, value=null){
+            var data = {};
+            if (event != null && value == null){
+                data[field]= event.target.value;
+            }else if (event != null && value != null){
+                data[field]= value;
+            }
+            if (field == 'start' || field == 'stop') {
+                var utc = new Date(new Date(data[field]).getTime());
+                utc.setMilliseconds(123);
+                data[field]= utc.toISOString();
+            }
+            let method = 'put';
+            if (field == 'delete'){
+                method = 'delete';
+            }
+
+            fetch("/api/time-entry/" + id, {
+                method: method,
+                body: JSON.stringify(data),
+                headers: Tona.SetHeaders(),
+            }).then(response => response.json()).then(function(data){
+                if (!data['ok']){
+                    console.error(data)
+                }else{
+                    if ( field == "start" || field == "stop"){
+                        
+                        let duration = document.querySelector("#time-entry-start-stop")
+                        if (duration !== null){
+                            duration.value = self.FormatDuration(data["payload"]["duration"]);
+                        }
+                    }                    
+                }
+            }).catch(function(error){
+                console.error(error);
+            });
+
+        }
+
         return self;
     }
     

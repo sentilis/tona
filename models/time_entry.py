@@ -181,6 +181,32 @@ class TimeEntry(BaseModel):
         cls.update(data).where(cls.id == id).execute()
         return cls.get(id)
 
+    @classmethod
+    def get_seconds(cls, start, stop) -> float:
+        return (stop - start).total_seconds()
+
+    @classmethod
+    def edit(cls, id, **kwargs):
+        time_entry = cls.get(id)
+        data = cls.prepare_fields(kwargs, only=['name', 'start', 'stop', 'res_id', 'res_model'])
+        duration = 0
+        if 'start' in kwargs.keys() and 'stop' not in kwargs.keys():
+            duration = cls.get_seconds(data.get("start"), time_entry.stop)
+        elif 'stop' in kwargs.keys() and 'start' not in kwargs.keys():
+            duration = cls.get_seconds(time_entry.start, data.get("stop"))
+        elif 'start' in kwargs.keys() and 'stop' in kwargs.keys():
+            duration = cls.get_seconds(data.get("start"), data.get("stop"))
+        if duration:
+            if duration > 0:
+                data.update(dict(duration=duration))
+            else:
+                raise Exception("Duration has to be greater than zero")
+        #print(time_entry.duration,  data)
+        #raise Exception("error")
+        cls.update(data).where(cls.id == id).execute()
+        return super().edit(id, **kwargs)
+
+
 def fetch(condition=""):
     sql = f"""
         select * from (
@@ -229,3 +255,4 @@ def fetch(condition=""):
     for row in cursor.fetchall():
         rows.append(row)
     return rows
+

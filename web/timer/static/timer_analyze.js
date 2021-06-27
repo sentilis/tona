@@ -23,7 +23,8 @@
             'id': 0, 
             'start_date': null, 
             'end_date': null, 
-            'type': null
+            'type': null,
+            "export": null,
         };
 
         self.FilterBy = function(event){
@@ -64,15 +65,19 @@
                 self.Load(event)
             }
         };
-
+        self.SelectedExport = function(event){
+            if (event?.target?.dataset?.export !== null){
+                self.Filters["export"] = event.target.dataset.export;
+                self.Load(event)
+            }
+        };
         self.Load = function (event){
             var analyze_datails = document.querySelector("#analyze-details");
             var analyze_header = analyze_datails.querySelector(".menu-label")
             var analyze_list = analyze_datails.querySelector(".menu-list")
 
             var ttype = analyze_datails.dataset.whoami
-            self.Filters['type'] = ttype;
-            analyze_list.innerHTML = "";
+            self.Filters['type'] = ttype;            
             var id = self.Filters['id']
 
             fetch("/api/time-entry/analyze?"+Tona.URLQuery(self.Filters), {
@@ -80,6 +85,13 @@
                 headers: Tona.SetHeaders(),
             }).then(response => response.json()).then(function(data){
                 if (data['ok']){
+                    if (self.Filters["export"] !== null){
+                        let attachment = data['payload'];
+                        window.open("/api/attachment/download/"+attachment['id'], '_blank').focus();
+                        self.Filters["export"] = null;
+                        return
+                    }
+                    analyze_list.innerHTML = "";
                     var details = data['payload'][ttype+"s"]
                     if (Object.keys(details).length > 1){
                         for (const detail_index in details){
@@ -94,7 +106,7 @@
                         analyze_header.innerHTML = detail[ttype].name +`<span class="is-pulled-right">`+TimeEntry.FormatDuration(detail.duration)+`</span>`
                         for (const time_entry_index in detail.time_entries){
                             var time_entry = detail.time_entries[time_entry_index]
-                            analyze_list.innerHTML += `<li><a>`+time_entry.name+` 
+                            analyze_list.innerHTML += `<li><a href="/time-entry/`+time_entry.id+`">`+time_entry.name+`
                             <span class="is-pulled-right">`+ TimeEntry.FormatDuration(time_entry.duration) +`</span>
                             </a></li>`
                         }

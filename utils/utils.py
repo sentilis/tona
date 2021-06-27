@@ -15,6 +15,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import base64
+from flask import jsonify
+import csv
+import subprocess
 
 class HTTPException(BaseException):
 
@@ -43,6 +46,9 @@ class HTTPResponse:
         if len(self.erros):
             data.update(dict(erros=self.erros))
         return data
+
+    def jsonify(self):
+        return jsonify(self.to_dict()), self.code
 
 def api_response(ok=False, message=None, payload=None):
     return {
@@ -92,3 +98,53 @@ def remove_attachment(storage, attachment) -> bool:
     if os.path.exists(ffile):
         os.remove(ffile)
     return True
+
+def build_csv(storage, file_name, data, is_tmp=False, is_base64=False):
+    fpath = storage
+    if is_tmp:
+        fpath = os.path.join(fpath, "tmp")
+    if not os.path.exists(fpath):
+        os.makedirs(fpath)
+    fpath = os.path.join(fpath, file_name)
+    with open(fpath, 'w', encoding='utf-8', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(data)
+    if is_base64:
+        with open(fpath, 'rb') as csvfile:
+            return base64.b64encode(csvfile.read())
+    return fpath
+
+def build_pdf(storage, file_name, header, body, footer, is_tmp=False, is_base64=False):
+    fpath = storage
+    if is_tmp:
+        fpath = os.path.join(fpath, "tmp")
+    if not os.path.exists(fpath):
+        os.makedirs(fpath)
+    fheader = header
+    fbody = body
+    ffooter = footer
+    contents = {'header': header, 'body': body, 'footer': footer}
+    for content in contents:
+        if not os.path.exists(contents.get(content)):
+            ptmp = os.path.join(fpath, f"pdf_{content}.html")
+            with open(ptmp, "w", encoding='utf-8') as f:
+                f.write(contents.get(content))
+                f.close()
+            if content == 'header':
+                fheader = ptmp
+            elif content == 'body':
+                fbody = ptmp
+            elif content == 'footer':
+                ffooter = ptmp
+    fpath = os.path.join(fpath, file_name)
+    args = [
+        "wkhtmltopdf", fbody,
+        "--footer-html", ffooter,
+        "--header-html", fheader,
+        fpath
+    ]
+    subprocess.run(args)
+    if is_base64:
+        with open(fpath, 'rb') as csvfile:
+            return base64.b64encode(csvfile.read())
+    return fpath

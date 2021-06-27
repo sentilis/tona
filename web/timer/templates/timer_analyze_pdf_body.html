@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <title> Tona Track Analyze Template PDF 1</title>
+    <!--[if !mso]><!-- -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      #outlook a {
+        padding: 0;
+      }
+  
+      body {
+        margin: 0;
+        padding: 0;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+  
+      table,
+      td {
+        border-collapse: collapse;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+  
+      img {
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+  
+      p {
+        display: block;
+        margin: 13px 0;
+      }
+    </style>
+    <style type="text/css">
+      @media only screen and (min-width:480px) {
+        .mj-column-per-100 {
+          width: 100% !important;
+          max-width: 100%;
+        }
+      }
+    </style>
+    <style type="text/css">
+      @media only screen and (max-width:480px) {
+        table.mj-full-width-mobile {
+          width: 100% !important;
+        }
+  
+        td.mj-full-width-mobile {
+          width: auto !important;
+        }
+      }
+    </style>
+    <style type="text/css">
+      a,
+      span,
+      td,
+      th {
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+      }
+    </style>
+  </head>
+  
+  <body style="background-color:#ffffff;">
+
+    <div style="background-color:#ffffff;">
+
+      <div style="margin:0px auto;max-width:600px;">
+        {% for entry_type in payload.keys() %}
+          {% set entry_group = payload[entry_type] %}          
+          {% for entry_group_id in entry_group.keys() %}
+              {% set time_entries = entry_group[entry_group_id].get("time_entries") %}
+              {% set project = entry_group[entry_group_id].get(ttype) %}
+              {% set duration = entry_group[entry_group_id].get("duration") %}
+              <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                <tbody>
+                  <tr>
+                    <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                      <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                          <tbody><tr>
+                            <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                              <div style="font-family:Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;line-height:24px;text-align:left;color:#434245;">
+                                <p style="margin: 0;">{{ project.get("name") }}: </p>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody></table>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style="margin:0px auto;max-width:600px;">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                  <tbody>
+                    <tr>
+                      <td style="direction:ltr;font-size:0px;padding:0;text-align:center;">
+        
+                        <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                          <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                            <tbody><tr>
+                              <td align="left" class="receipt-table" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;table-layout:auto;width:100%;border:none;">
+                                  <tbody>
+                                  {% for time_entry in time_entries %}
+                                    <tr valign="top">
+                                      <td width="60%" style="font-size: 16px; line-height: 20px; word-break: normal;">
+                                        <p style="margin: 0;"> {{time_entry.get("name") }}</p>
+                                        <p style="margin: 0; color: #ACA9BB; padding-bottom: 10px; font-size: 12px;">
+                                          {{convert_datetime(time_entry.get("start"), fmt_out=FORMAT_DATETIME, tz_out=TZ) }} - 
+                                          {{convert_datetime(time_entry.get("stop"), fmt_out=FORMAT_DATETIME, tz_out=TZ)}}
+                                        </p>
+                                      </td>
+                                      <td align="right" style="font-size: 16px; line-height: 20px; word-break: normal; padding-top: 20px; padding-right: 5px;">
+                                        <p style="margin: 0;"></p>
+                                      </td>
+                                      <td align="right" style="font-size: 16px; line-height: 20px; word-break: normal; padding-top: 20px;">
+                                        <p style="margin: 0;">{{format_time_duration(time_entry.get("duration"))}}</p>
+                                      </td>
+                                    </tr>
+                                  {% endfor %}
+                                  <tr>
+                                    <td style="font-size: 16px; line-height: 20px; word-break: normal; border-bottom-width: 1px; border-bottom-color: #EAEEEB; border-bottom-style: dashed; padding-top: 10px;"></td>
+                                    <td style="font-size: 16px; line-height: 20px; word-break: normal; border-bottom-width: 1px; border-bottom-color: #EAEEEB; border-bottom-style: dashed; padding-top: 10px;"></td>
+                                    <td style="font-size: 16px; line-height: 20px; word-break: normal; border-bottom-width: 1px; border-bottom-color: #EAEEEB; border-bottom-style: dashed; padding-top: 10px;"></td>
+                                  </tr>
+                                  <tr>
+                                    <td style="font-size: 16px; line-height: 20px; word-break: normal; padding-top: 20px;"></td>
+                                    <td align="right" style="font-size: 16px; line-height: 20px; word-break: normal; padding-top: 20px;"><strong>Total Hours</strong></td>
+                                    <td align="right" style="font-size: 16px; line-height: 20px; word-break: normal; padding-top: 20px;"><strong>{{format_time_duration(duration)}}</strong></td>
+                                  </tr>
+                                </tbody></table>
+                              </td>
+                            </tr>
+                          </tbody></table>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          {% endfor %}
+        {% endfor %}
+
+
+      </div>
+
+
+
+    </div> 
+  </body>
+</html>

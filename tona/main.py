@@ -1,23 +1,17 @@
+from dotenv import load_dotenv
 import os
-import sys
 import uvicorn
 import click
-
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-
-from tona.app import app
-from tona.config import Config
-
+from tona.core import Config
 
 @click.command(name="web")
 @click.pass_context
-@click.option("--config", "-c", type=click.STRING)
-def cli_web(ctx, config):
-    config = Config(config)
-    app.state.config = config
-    uvicorn.run("app:app", host=config.server_host, port=config.server_port,
+@click.option("--envfile", "-e", type=click.STRING, help="Envrionment file e.g -e .env")
+def cli_web(ctx, envfile):
+    if envfile and os.path.exists(envfile):
+        load_dotenv(envfile)
+    config = Config()
+    uvicorn.run("server:app", host=config.server_host, port=config.server_port,
                 log_level=config.log_level, reload=config.server_reload)
 
 @click.group()
@@ -29,7 +23,7 @@ def cli(ctx):
 cli.add_command(cli_web)
 
 def main():
-    cli(obj={'argv': sys.argv})
+    cli()
 
 
 if __name__ == "__main__":

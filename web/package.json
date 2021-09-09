@@ -9,6 +9,7 @@
     "start": "node __sapper__/build"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "compression": "^1.7.1",
     "polka": "next",
     "sass": "^1.38.2",

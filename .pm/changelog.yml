@@ -1,2 +1,7 @@
+0.2.0-beta.1 (2021-09-09):
+  added:
+  - Migration flask to fastapi
+  - Migration framework svelte-sapper
+  - Drive - LocalFiles sync
 "2021-04-18":
 - Initialized pm (Project Metadata)

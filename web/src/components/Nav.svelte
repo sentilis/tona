@@ -21,6 +21,14 @@
 			>
 				Drive
 			</a>
+			<a
+				rel="prefetch"
+				aria-current={segment === "time-tracking" ? "page" : undefined}
+				class="navbar-item"
+				href="time-tracking"
+			>
+				Time Tracking
+			</a>
 		</div>
 	</div>
 </nav>

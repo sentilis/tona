@@ -20,14 +20,23 @@ FORMAT_DATETIME_ISO8601 = '%Y-%m-%dT%H:%M:%S.%fZ'
 FORMAT_DATE = '%Y-%m-%d'
 FORMAT_TIME = '%H:%M:%S'
 FORMAT_DATETIME = FORMAT_DATE + ' ' + FORMAT_TIME
+FORMAT_DATETIME_UTC = f"{FORMAT_DATETIME}.%f+00:00"
 
 def format_datetime(dt, fmt_in=FORMAT_DATETIME_ISO8601,
                         fmt_out=FORMAT_DATETIME_ISO8601, obj=False):
     if isinstance(dt, datetime):
         pass
     elif isinstance(dt, str):
-        dt = datetime.strptime(dt, fmt_in)
-    if obj:
+        if fmt_in == FORMAT_DATETIME_UTC:
+            try: 
+                dt = datetime.strptime(dt, fmt_in)
+            except:
+                dt = datetime.strptime(dt, f"{FORMAT_DATETIME}+00:00")
+            dt = dt.replace(tzinfo=pytz.utc)
+        else:
+            dt = datetime.strptime(dt, fmt_in)
+        
+    if obj:        
         return dt
     return dt.strftime(fmt_out)
 

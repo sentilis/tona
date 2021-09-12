@@ -11,6 +11,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "compression": "^1.7.1",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33",
     "polka": "next",
     "sass": "^1.38.2",
     "sirv": "^1.0.0"
@@ -23,6 +25,7 @@
     "@babel/runtime": "^7.0.0",
     "@rollup/plugin-babel": "^5.0.0",
     "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-replace": "^2.4.0",
     "@rollup/plugin-url": "^5.0.0",

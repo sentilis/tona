@@ -45,6 +45,18 @@ case "$1" in
         pip uninstall tona 
         clean_build
         ;;
+    --api-development | -ad)
+        exec python tona/main.py web -e .env.example
+        ;;
+    --web-development | -wd)
+        cd web
+        exec npm run dev
+        ;;
+    --web-build | -wb)
+        cd web; 
+        exec npm run export
+        cp -r __sapper__/export/* ../tona/template
+        ;;
     *)
         exec "$@"
         ;;

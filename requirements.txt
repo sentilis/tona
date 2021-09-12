@@ -3,3 +3,13 @@ peewee
 python-dateutil
 flask
 pytz
+uvicorn
+fastapi
+pyyaml
+flake8
+aiofiles
+python-dotenv
+pydantic
+requests
+pytest
+python-magic

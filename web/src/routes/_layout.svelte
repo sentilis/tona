@@ -1,6 +1,8 @@
 <svelte:head>
   <style src="../../node_modules/bulma/css/bulma.css"></style>
-  <link rel="stylesheet" href="../../@fontawesome/fontawesome-free/css/all.min.css">
+  <!--link rel="stylesheet" src="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css"-->
+  <link rel="stylesheet" href="https://bulma.io/vendor/fontawesome-free-5.15.2-web/css/all.min.css">
+
 </svelte:head>
 
 <script>

@@ -1,14 +1,12 @@
 import os
 from functools import lru_cache
-from fastapi.routing import run_endpoint_function
-import yaml
 from pydantic import BaseSettings
-
+import click
 
 
 class Config(BaseSettings):
     
-    env: str = 'development'
+    env: str = 'production'
     
     server_port: int = 5001
     server_host: str = '0.0.0.0'
@@ -16,7 +14,7 @@ class Config(BaseSettings):
     
     log_level: str = 'debug'
     
-    data: str = 'data'
+    data: str = os.path.join(click.get_app_dir("tona"), 'data')
     
     db_name: str = 'tona.db'
 
@@ -25,7 +23,10 @@ class Config(BaseSettings):
 
     @property
     def drive_dir(self) -> str:
-        return os.path.join(self.data, 'drive')
+        path = os.path.join(self.data, 'drive')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
 
     @drive_dir.setter
     def drive_dir(self, val):
@@ -49,19 +50,14 @@ class Config(BaseSettings):
 
     @property
     def db_sqlite(self) -> str:
+        if not os.path.exists(self.data):
+            os.makedirs(self.data)
         return f"{os.path.join(self.data, self.db_name)}"
 
     @db_sqlite.setter
     def db_sqlite(self, val):
         pass
 
-    @property
-    def tmp_dir(self) -> str:
-        return f"{os.path.join(self.data, 'tmp')}"
-    
-    @tmp_dir.setter
-    def tmp_dir(self, val):
-        pass
 
 @lru_cache
 def get_config():

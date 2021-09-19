@@ -1,11 +1,9 @@
 click
 peewee
 python-dateutil
-flask
 pytz
 uvicorn
 fastapi
-pyyaml
 flake8
 aiofiles
 python-dotenv

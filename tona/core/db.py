@@ -21,8 +21,8 @@ def registry(apps_dir):
                     
                     dirs = modelpath.replace('tona.','').split('.')
                     for dir in dirs:
-                        if getattr(modelimport, dir):
-                            modelimport = getattr(modelimport, dir)                    
-                    if getattr(modelimport, classname):
+                        if getattr(modelimport, dir, None):
+                            modelimport = getattr(modelimport, dir)
+                    if getattr(modelimport, classname, None):
                         tables.append(getattr(modelimport, classname))
     db.create_tables(tables)

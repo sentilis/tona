@@ -12,11 +12,11 @@ def registry(apps_dir) -> FastAPI:
                 modelimport = __import__(modelpath)
                 dirs = modelpath.replace('tona.', '').split('.')
                 for dir in dirs:
-                    if getattr(modelimport, dir):
+                    if getattr(modelimport, dir, None):
                         modelimport = getattr(modelimport, dir)
                 prefix = dirpath.replace('_','-')
                 prefix = f"/{prefix.split('/')[-1]}"
-                if getattr(modelimport, 'v1'):
+                if getattr(modelimport, 'v1', None):
                     v1.include_router(getattr(modelimport, 'v1'), prefix=prefix)
     for route in v1.routes:
         logger.info("Route %s: %s",route.name, route.path)

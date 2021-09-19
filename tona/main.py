@@ -11,7 +11,7 @@ def cli_web(ctx, envfile):
     if envfile and os.path.exists(envfile):
         load_dotenv(envfile)
     config = Config()
-    uvicorn.run("server:app", host=config.server_host, port=config.server_port,
+    uvicorn.run("tona.server:app", host=config.server_host, port=config.server_port,
                 log_level=config.log_level, reload=config.server_reload)
 
 @click.group()

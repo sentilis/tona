@@ -1,7 +1,16 @@
-0.2.0-beta.1 (2021-09-09):
+0.2.0 (2021-09-11):
+  added:
+  - Time Tracking RESTful
+  - Time Tracking Web
+0.2.1 (2021-09-09):
   added:
   - Migration flask to fastapi
   - Migration framework svelte-sapper
   - Drive - LocalFiles sync
-"2021-04-18":
-- Initialized pm (Project Metadata)
+0.3.0 (2021-09-19):
+  added:
+  - Time Tracking Analyze
+  - Support download files tmp
+  - Lib csv & pdf builder
+  changed:
+  - Tona core config inherit BaseConfig

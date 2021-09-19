@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 # Part of Sentilis. See LICENSE file for full copyright and licensing details.
+from tona.core import Config, get_config
 from starlette.responses import JSONResponse
 from tona.utils.exceptions import TonaException
-from typing import List
-from fastapi import APIRouter, HTTPException, status, Response
-from .models.time_entry import TimeEntry, TimeEntryStart, TimeEntryStop
-from .models.time_entry import TimeEntryEdit, TimeEntryItems, TimeEntryItem
+from typing import List, Optional
+from fastapi import APIRouter, HTTPException, status, Response, Header, Depends
+from .models.time_entry import TimeEntryStart, TimeEntryStop, TimeEntryAnlyzeMeta
+from .models.time_entry import TimeEntryEdit, TimeEntryItems, TimeEntryItem, TimeEntryAnlyzeItems
 from .services.entry import Entry
+from .services.analyze import Analyze
 from peewee import DoesNotExist
 from tona.utils import logger
+
 v1 = APIRouter()
 entryService = Entry()
-
+analyzeService = Analyze()
 
 @v1.post('/entries/start', response_model=TimeEntryItem, status_code=status.HTTP_201_CREATED)
 async def post_entries_start(entry: TimeEntryStart):
@@ -42,7 +45,7 @@ async def post_entries_stop(entry: TimeEntryStop):
 @v1.get('/entries/current', response_model=TimeEntryItem)
 async def get_entries_current():
     res = TimeEntryItem()
-    res.payload = entryService.current()    
+    res.payload = entryService.current()
     if res.payload:
         return res
     raise HTTPException(status_code=404, detail="Not found current entry")
@@ -92,3 +95,27 @@ def delete_entries(entry_id: int):
         logger.exception(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=str(e))
+
+
+@v1.get("/analyze", response_model=TimeEntryAnlyzeItems, response_model_exclude_none=None)
+def get_analyze(skip: int = 0, limit: int = 100, group_by: str = "any", group_id: int = 0,
+                export: str = "", sort_by: str = "-created_at",  filters: str = "",
+                tz: Optional[str] = Header("UTC")):
+
+    res = TimeEntryAnlyzeItems()
+    if group_by == 'any':
+        res.payload = analyzeService.group_by_any(locals())
+    
+    if export.lower() == 'pdf':
+        fpdf = analyzeService.export_pdf(group_by, res.payload, tz)
+        meta = TimeEntryAnlyzeMeta()
+        meta.slug = "export-to"
+        meta.value = fpdf.get("name")
+        res.meta = [meta]
+    elif export.lower() == 'csv':
+        fpdf = analyzeService.export_csv(group_by, res.payload, tz)
+        meta = TimeEntryAnlyzeMeta()
+        meta.slug = "export-to"
+        meta.value = fpdf.get("name")
+        res.meta = [meta]
+    return res

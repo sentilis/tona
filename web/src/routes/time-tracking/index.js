@@ -78,3 +78,8 @@ export const entryDelete = (entry) => {
         console.err(err)
     });
 }
+
+
+export const downloadExportTo = (fname) => {
+    window.open(URLJoin(API_URL,`/api/v1/drive/files/0/${fname}`, '_blank')).focus()
+}

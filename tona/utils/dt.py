@@ -63,8 +63,8 @@ def convert_datetime(dt, tz_in=pytz.utc, tz_out=pytz.utc,
     return dt.strftime(fmt_out)
 
 
-def format_time_duration(seconds: float, format: str = "clock"):
-
+def format_duration(seconds: float, format: str = "clock"):
+    print(seconds)
     minutes = int(seconds / 60)
     hours  = int(minutes / 60)
     seconds = int(seconds - minutes * 60)

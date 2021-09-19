@@ -2,15 +2,14 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from tona.core import init_db, registry_db, registry_router, Config
+from tona.core import init_db, registry_db, registry_router, get_config
 
 app = FastAPI(title="Tona API")
-config = Config()
+config = get_config()
 
 if os.path.exists('tona'):
     config.run_main = False
 
-app.state.config = config
 origins = [
     "http://localhost:3000",
     "http://localhost",

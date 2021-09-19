@@ -9,11 +9,14 @@
 <script>
     import Workspace3 from "../../components/Workspace3.svelte";
     import Timer from "./Timer.svelte";
+    import Filter from "./Filter.svelte";
+
     import {
         getLastEntries,
         formatDuration,
         entryEdit,
         entryDelete,
+        downloadExportTo,
     } from "./index";
     import moment from "moment-timezone";
 
@@ -21,6 +24,8 @@
 
     export let lastEntries;
     let entrySelected;
+    let menu = "";
+
     let entrySelectedMenuActive;
     const entrySelectedMenu = () => {
         entrySelectedMenuActive = !entrySelectedMenuActive;
@@ -43,33 +48,66 @@
             entryEdit("start", entrySelected);
         }
     };
+
+    const menuOnClick = (val) => {
+        console.log(val);
+        if (val == "analyze-any") {
+            menu = val;
+        } else {
+            menu = "";
+        }
+    };
+
+    const getAnalyzeEntries = (event) => {
+        let metaHas = false;
+        let fname = "";
+        if (event.detail["meta"] !== null) {
+            (event.detail["meta"] || []).forEach((row) => {
+                if (row["slug"] === "export-to") {
+                    metaHas = true;
+                    fname = row["value"];
+                }
+            });
+        }
+        if (event.detail["entries"] !== null && !metaHas) {
+            lastEntries = event.detail["entries"];
+        }
+        if (metaHas) {
+            downloadExportTo(fname)
+        }
+    };
 </script>
 
 <Workspace3>
     <aside class="menu" slot="column-one">
         <p class="menu-label">Track</p>
         <ul class="menu-list">
-            <li><a href="/time-tracking">Timer</a></li>
+            <li><a on:click={() => menuOnClick("timer")}>Timer</a></li>
         </ul>
         <p class="menu-label">Analyze</p>
         <ul class="menu-list">
-            <li><a href="/time-entry/analyze/other">Other</a></li>
-            <li><a href="/time-entry/analyze/project">Project</a></li>
-            <li><a href="/time-entry/analyze/objective">Objective</a></li>
-            <li><a href="/time-entry/analyze/habit">Habit</a></li>
+            <li><a on:click={() => menuOnClick("analyze-any")}>Any</a></li>
+            <!--li><a on:click={() => (menu = "analyze-project")}>Project</a></li>
+            <li>
+                <a on:click={() => (menu = "analyze-objective")}>Objective</a>
+            </li>
+            <li><a on:click={() => (menu = "analyze-habit")}>Habit</a></li-->
         </ul>
     </aside>
     <div class="column" slot="column-two">
         <div class="columns">
             <div class="column">
-                <Timer />
+                {#if menu == ""}
+                    <Timer />
+                {:else}
+                    <Filter on:analyzeApplyFilters={getAnalyzeEntries} />
+                {/if}
             </div>
         </div>
-        <table class="table is-hoverable is-narrow">
+        <table class="table is-hoverable is-narrow is-fullwidth">
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Date</th>
                     <th>Duration</th>
                 </tr>
             </thead>
@@ -84,16 +122,21 @@
                         class="is-clickable"
                         on:click={() => (entrySelected = lastEntry)}
                     >
-                        <th>{lastEntry["name"]} <br /> </th>
-                        <th>
-                            {moment(lastEntry["start"])
-                                .tz(getBrowseTimeZone())
-                                .calendar()} <br />
-                            {moment(lastEntry["stop"])
-                                .tz(getBrowseTimeZone())
-                                .calendar()}
-                        </th>
-                        <th>{formatDuration(lastEntry["duration"])}</th>
+                        <td
+                            >{lastEntry["name"]} <br />
+                            <span class="content is-small">
+                                {moment(lastEntry["start"])
+                                    .tz(getBrowseTimeZone())
+                                    .calendar()}
+                            </span>
+                            -
+                            <span class="content is-small">
+                                {moment(lastEntry["stop"])
+                                    .tz(getBrowseTimeZone())
+                                    .calendar()}
+                            </span>
+                        </td>
+                        <td>{formatDuration(lastEntry["duration"])}</td>
                     </tr>
                 {/each}
             </tbody>

@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import tempfile
+import magic
 from typing import Optional
 from typing import List
 from fastapi import APIRouter, BackgroundTasks, HTTPException
@@ -51,11 +53,26 @@ async def get_files(skip: int = 0, limit: int = 100, drive_folder_id: Optional[i
 @v1.get('/files/{file_id}/{action}')
 async def get_files_by_action(file_id: int, action: str):
     try:
-        row = DriveFile.get_by_id(file_id)
+        fpath = ""
+        ftype = ""
+        fname = ""
+        if file_id:
+            row = DriveFile.get_by_id(file_id)
+            fpath = os.path.join("data/drive", row.file[1:])
+            fname = row.name
+            ftype = row.mimetype
+        else:
+            fpath = os.path.join(tempfile.gettempdir(), action)
+            if os.path.exists(fpath) and os.path.isfile(fpath):
+                ftype = magic.Magic(mime=True).from_file(fpath)
+            else:
+                raise DoesNotExist
+            fname = action
+            action = 'download'
         if action == 'download':
-            return FileResponse(os.path.join("data/drive", row.file[1:]), 200, media_type="application/octet-stream", filename=row.name)
+            return FileResponse(fpath, 200, media_type="application/octet-stream", filename=fname)
         elif action == 'preview':
-            return FileResponse(os.path.join("data/drive", row.file[1:]), 200, media_type=row.mimetype)
+            return FileResponse(fpath, 200, media_type=ftype)
         raise HTTPException(400, detail="Action only support download & preview")
     except DoesNotExist as e:
         logger.error(e)
@@ -63,7 +80,7 @@ async def get_files_by_action(file_id: int, action: str):
     except Exception as e:
         logger.error(e)
         raise HTTPException(status_code=500)
-   
+
 
 
 @v1.get("/localsync")

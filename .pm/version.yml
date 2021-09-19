@@ -1,9 +1,4 @@
-prerelease:
-  label: beta
-  major: 1
-  minor: 0
-  patch: 0
 version:
   major: 0
-  minor: 2
+  minor: 3
   patch: 0

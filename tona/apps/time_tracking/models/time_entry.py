@@ -54,6 +54,14 @@ class TimeEntryItems(PydanticHTTPResponseModel):
 class TimeEntryItem(PydanticHTTPResponseModel):
     payload: Optional[TimeEntry.Pydantic]
 
+
+class TimeEntryAnlyzeMeta(PydanticBaseModel):
+    slug: Optional[str]
+    value: Optional[str]
+
+class TimeEntryAnlyzeItems(TimeEntryItems):
+    meta: Optional[list[TimeEntryAnlyzeMeta]]
+
     """
     @classmethod
     def apply_filter(cls, time_entries, start_date=None, end_date=None):

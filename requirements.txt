@@ -11,3 +11,4 @@ pydantic
 requests
 pytest
 python-magic
+jinja2

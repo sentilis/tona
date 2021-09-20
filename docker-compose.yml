@@ -5,8 +5,8 @@ services:
         container_name: sentilis-tona
         build: .
         ports: 
-            - 5001:5001
-        #volumes: # Persist data storage
-        #    - ./storage:/tona/storage
+            - 5003:5001
+        volumes: # Persist data storage
+            - ./data:/root/.config/tona/data
         #environment:
         #    TONA_TZ: America/Mexico_City

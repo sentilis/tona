@@ -1,0 +1,2 @@
+recursive-include tona/templates *
+recursive-include tona/apps/time_tracking/templates *

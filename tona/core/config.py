@@ -22,14 +22,14 @@ class Config(BaseSettings):
 
 
     @property
-    def drive_dir(self) -> str:
+    def drive(self) -> str:
         path = os.path.join(self.data, 'drive')
         if not os.path.exists(path):
             os.makedirs(path)
         return path
 
-    @drive_dir.setter
-    def drive_dir(self, val):
+    @drive.setter
+    def drive(self, val):
         pass
 
     @property

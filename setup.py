@@ -4,6 +4,7 @@ from setuptools import setup, Command, find_packages
 from shutil import rmtree
 import os
 import sys
+import re
 
 class PublishCommand(Command):
 
@@ -46,18 +47,36 @@ with open("requirements.txt", encoding="utf-8") as f:
     for line in f.readlines():
         requirements.append(line.replace('\n', ''))
 
+
+package_data = {}
+package_dir = {}
+packages = []
+for data in os.walk("tona"):
+    dir = data[0]
+    if not re.search(".git|.pm|__pycache__|storage", dir):
+        if re.search("static|templates", dir):
+            package_data.update({dir.replace("/", "."): [dir + "/*.*"]})
+        else:
+            # TODO: Check is work replace on Windows
+            package =  dir.replace('/', '.')
+            package_dir.update({package: dir})
+            packages.append(package)
+
 setup(
     name="tona",
-    version="0.1.1",
+    version="0.1.2",
     url="https://github.com/sentilis/tona",
     author="Jose Hbez",
     author_email="dev@josehbez.com",
     description="The All-In-One workspace for personal productivity",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=find_packages(include=["tona"]),
+    packages=packages,
+    package_dir=package_dir,
+    include_package_data=True,
+    #package_data=package_data,
     entry_points={
-        "console_scripts": ["tona=tona.main:main"]
+        "console_scripts": ["tona=tona.__main__:main"]
     },
     install_requires=requirements,
     license="LGPLv3",
@@ -87,7 +106,7 @@ setup(
 
         "Topic :: Utilities",
     ],
-    #cmdclass={
+    # cmdclass={
     #    "publish": PublishCommand
-    #}
+    # }
 )

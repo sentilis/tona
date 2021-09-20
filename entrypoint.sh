@@ -1,10 +1,7 @@
 #!/bin/bash
 
 set -e
-
-: ${TONA_ENV:=${TONA_ENV:="production"}}
-: ${TONA_TZ:=${TONA_TZ:='UTC'}}
-: ${TONA_STORAGE:=${TONA_STORAGE:="/tona/storage"}}
+# : ${TONA_ENV:=${TONA_ENV:="production"}}
 
 ARGS=()
 
@@ -22,17 +19,42 @@ function clean_build(){
     done 
 }
 
+function showHelp(){
+echo "
+    [--help [-h]]
+    
+
+    [--api-develop [-d]]
+
+    [--web-develop [-w]]
+    [--web-export [-e]] -- Transpiling WebApp to js & html
+
+    [--production [tona]] -- Mode production
+"
+}
+
 case "$1" in
-    --prod | tona )
-        add_arg "--time-zone" "$TONA_TZ"
-        add_arg "--storage" "$TONA_STORAGE"
-        export TONA_ENV=$TONA_ENV
-        exec tona webapp "${ARGS[@]}"
+    --help | -h )
+        showHelp
+    ;;
+
+    --production | tona )        
+        exec python3 tona web
         ;;
-    --dev)
-        export TONA_ENV=dev
-        exec python3 main.py webapp -d --storage storage --time-zone $(cat /etc/timezone)
+
+    --api-develop | -d)
+        exec python tona/main.py web -e .env.example
         ;;
+    --web-develop | -w)
+        cd web
+        exec npm run dev
+        ;;
+    --web-export | -e)
+        cd web; 
+        npm run export
+        cp -vr __sapper__/export/* ../tona/templates
+        ;;
+    
     --install)
         python3 setup.py install
         ;;
@@ -45,18 +67,7 @@ case "$1" in
         pip uninstall tona 
         clean_build
         ;;
-    --api-development | -ad)
-        exec python tona/main.py web -e .env.example
-        ;;
-    --web-development | -wd)
-        cd web
-        exec npm run dev
-        ;;
-    --web-build | -wb)
-        cd web; 
-        exec npm run export
-        cp -r __sapper__/export/* ../tona/template
-        ;;
+
     *)
         exec "$@"
         ;;

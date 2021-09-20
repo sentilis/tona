@@ -18,11 +18,12 @@ import tempfile
 import magic
 from typing import Optional
 from typing import List
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from fastapi.responses import FileResponse
 from .models.drive_folder import DriveFolder
 from .models.drive_file import DriveFile
 from .services.localsync import LocalSync
+from tona.core.config import Config, get_config
 from peewee import DoesNotExist
 import os
 from tona.utils import logger
@@ -51,14 +52,14 @@ async def get_files(skip: int = 0, limit: int = 100, drive_folder_id: Optional[i
     return list(rows.offset(skip).limit(limit))
 
 @v1.get('/files/{file_id}/{action}')
-async def get_files_by_action(file_id: int, action: str):
+async def get_files_by_action(file_id: int, action: str, config: Config = Depends(get_config)):
     try:
         fpath = ""
         ftype = ""
         fname = ""
         if file_id:
             row = DriveFile.get_by_id(file_id)
-            fpath = os.path.join("data/drive", row.file[1:])
+            fpath = os.path.join(config.drive, row.file[1:])
             fname = row.name
             ftype = row.mimetype
         else:
@@ -84,8 +85,8 @@ async def get_files_by_action(file_id: int, action: str):
 
 
 @v1.get("/localsync")
-async def get_localsync(background_tasks: BackgroundTasks):
+async def get_localsync(background_tasks: BackgroundTasks, config: Config = Depends(get_config)):
     def localsync():
-        LocalSync("data/drive").sync()
+        LocalSync(config.drive).sync()
     background_tasks.add_task(localsync)
     return {"message": "LocalSync sent in the background"}

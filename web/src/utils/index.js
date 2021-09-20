@@ -1,6 +1,9 @@
 import moment from 'moment-timezone';
 
 export const URLJoin = (base, endpoint) => {
+    if (base === "") {
+        return endpoint
+    }
     return new URL(endpoint, base).toString()
 }
 

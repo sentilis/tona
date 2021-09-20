@@ -60,7 +60,7 @@ class TimeEntryAnlyzeMeta(PydanticBaseModel):
     value: Optional[str]
 
 class TimeEntryAnlyzeItems(TimeEntryItems):
-    meta: Optional[list[TimeEntryAnlyzeMeta]]
+    meta: Optional[List[TimeEntryAnlyzeMeta]]
 
     """
     @classmethod

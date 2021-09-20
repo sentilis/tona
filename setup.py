@@ -68,7 +68,7 @@ setup(
     url="https://github.com/sentilis/tona",
     author="Jose Hbez",
     author_email="dev@josehbez.com",
-    description="The All-In-One workspace for personal productivity",
+    description="The All-In-One workspace that will help grow & increase your productivity.",
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=packages,

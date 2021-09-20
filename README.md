@@ -17,18 +17,12 @@
 ## TONA
 
 ### What's TONA? 
-ALL IN ONE tools that will help grow & increase your personal productivity. 
+The All-In-One workspace that will help grow & increase your productivity.
 
-### Features
+## Features
 
-* ⌛️ Time Tracking
-  * Full integration with Projects, Habits & OKRs
-  * Analysis by Projects, Habits & OKRs
-* 📑 Project Manager
-  * Task widget comments & attachments
-  * Task priority, archive, due and more
-* 🎯 Habit Manager
-* 🚀 OKR Manager
+### ⌛️ Time Tracking
+### 📁 Drive
 
 ## Getting started
 
@@ -36,7 +30,7 @@ ALL IN ONE tools that will help grow & increase your personal productivity.
 
 ```bash
 $ pip install -U tona
-$ tona webapp
+$ tona web
 $ Running on http://0.0.0.0:5001/ (Press CTRL+C to quit
 ```
 
@@ -46,6 +40,13 @@ $ Running on http://0.0.0.0:5001/ (Press CTRL+C to quit
 $ docker-compose up
 $ Running on http://0.0.0.0:5001/ (Press CTRL+C to quit
 ```
+
+## Stack Tech
+
+* [fastapi](https://fastapi.tiangolo.com/)
+* [bulma/css](https://bulma.io/)
+* [sapper/svelte](https://sapper.svelte.dev/)
+* [sqlite]()
 
 ## Contribute
 
